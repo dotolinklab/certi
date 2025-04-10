@@ -6,7 +6,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>블로그 게시물 - 자격증 닷컴</title>
+    <title>자격증 닷컴 - 블로그 상세</title>
     <link rel="stylesheet" href="css/style.css?v=2.0">
     <link rel="stylesheet" href="css/blog.css?v=2.0">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
@@ -27,28 +27,28 @@
                 </button>
                 <nav class="nav-menu">
                     <ul>
-                        <li><a href="index.html">홈</a></li>
-                        <li><a href="blog.html">블로그</a></li>
-                        <li><a href="admin-login.html" id="adminLoginBtn">관리자</a></li>
+                        <li><a href="admin-dashboard.html" id="adminLoginBtn">관리자 대시보드</a></li>
+                        <li class="admin-only"><a href="#" id="adminLogoutLink">로그아웃</a></li>
                     </ul>
                 </nav>
             </div>
         </div>
     </header>
 
+    <section class="blog-header">
+        <div class="container">
+            <h2>학위취득, 자격증 취득 완벽 가이드!!</h2>
+            <p>모든 궁금증을 해결해 드리도록 하겠습니다. </p>
+        </div>
+    </section>
+
     <section class="blog-container">
         <div class="container">
-            <button class="btn-back" onclick="goBack()">
-                <i class="fas fa-arrow-left"></i> 목록으로 돌아가기
-            </button>
-            
-            <div class="blog-post-detail">
-                <div id="postDetailContainer">
-                    <!-- 게시물 상세 내용이 여기에 동적으로 추가됩니다 -->
-                    <div class="loading-spinner">
-                        <i class="fas fa-spinner fa-spin"></i>
-                        <p>게시물을 불러오는 중입니다...</p>
-                    </div>
+            <!-- 블로그 상세 내용 -->
+            <div id="blog-detail-container" class="blog-detail-container">
+                <div class="loading-spinner">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>게시물을 불러오는 중입니다...</p>
                 </div>
             </div>
         </div>
@@ -63,118 +63,19 @@
             <p class="copyright">© 학위취득, 자격증닷컴</p>
         </div>
     </footer>
-    
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // URL에서 게시물 ID 가져오기
-            const urlParams = new URLSearchParams(window.location.search);
-            const postId = urlParams.get('id');
-            
-            if (!postId) {
-                showError('게시물을 찾을 수 없습니다.');
-                return;
-            }
-            
-            // 로컬 스토리지에서 게시물 데이터 가져오기
-            const posts = JSON.parse(localStorage.getItem('blogPosts')) || [];
-            const post = posts.find(p => p.id === postId);
-            
-            if (!post) {
-                showError('게시물을 찾을 수 없습니다.');
-                return;
-            }
-            
-            // 게시물 렌더링
-            renderPost(post);
-            
-            // 문서 제목 업데이트
-            document.title = `${post.title} - 자격증 닷컴`;
-        });
-        
-        // 게시물 렌더링 함수
-        function renderPost(post) {
-            const container = document.getElementById('postDetailContainer');
-            
-            // HTML 템플릿 생성
-            const template = `
-                <div class="post-detail-header">
-                    <h1 class="post-detail-title">${post.title}</h1>
-                    <p class="post-detail-date">${post.date}</p>
-                </div>
-                
-                <div class="post-detail-content">
-                    ${post.image ? `
-                        <div class="post-detail-image">
-                            <img src="${post.image}" alt="${post.title}">
-                        </div>
-                    ` : ''}
-                    
-                    <div class="post-detail-content-text">
-                        ${post.isHtml ? post.content : `<p>${post.content}</p>`}
-                    </div>
-                </div>
-            `;
-            
-            container.innerHTML = template;
-        }
-        
-        // 에러 메시지 표시 함수
-        function showError(message) {
-            const container = document.getElementById('postDetailContainer');
-            container.innerHTML = `
-                <div class="error-message">
-                    <i class="fas fa-exclamation-circle"></i>
-                    <p>${message}</p>
-                    <a href="blog.html" class="btn-back">블로그 목록으로 돌아가기</a>
-                </div>
-            `;
-        }
-        
-        // 뒤로 가기 함수
-        function goBack() {
-            window.history.back();
-        }
-        
-        // 햄버거 메뉴 기능 구현
-        const hamburgerBtn = document.querySelector('.mobile-menu-button');
-        const menuNav = document.querySelector('.nav-menu');
-        
-        if (hamburgerBtn && menuNav) {
-            hamburgerBtn.addEventListener('click', function(e) {
-                e.stopPropagation(); // 이벤트 버블링 방지
-                menuNav.classList.toggle('active');
-                const isExpanded = menuNav.classList.contains('active');
-                this.setAttribute('aria-expanded', isExpanded);
-                this.setAttribute('aria-label', isExpanded ? '메뉴 닫기' : '메뉴 열기');
-                
-                // 아이콘 변경
-                const icon = this.querySelector('i');
-                if (isExpanded) {
-                    icon.classList.remove('fa-bars');
-                    icon.classList.add('fa-times');
-                } else {
-                    icon.classList.remove('fa-times');
-                    icon.classList.add('fa-bars');
-                }
-            });
-            
-            // 메뉴 내부 클릭 시 이벤트 전파 막기
-            menuNav.addEventListener('click', function(e) {
-                e.stopPropagation();
-            });
-            
-            // 문서 어느 곳이든 클릭 시 메뉴 닫기
-            document.addEventListener('click', function() {
-                if (menuNav.classList.contains('active')) {
-                    menuNav.classList.remove('active');
-                    hamburgerBtn.setAttribute('aria-expanded', 'false');
-                    hamburgerBtn.setAttribute('aria-label', '메뉴 열기');
-                    const icon = hamburgerBtn.querySelector('i');
-                    icon.classList.remove('fa-times');
-                    icon.classList.add('fa-bars');
-                }
-            });
-        }
-    </script>
+
+    <!-- 삭제 확인 모달 -->
+    <div id="deleteModal" class="modal">
+        <div class="modal-content">
+            <h3>게시물 삭제</h3>
+            <p>이 게시물을 정말 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.</p>
+            <div class="modal-buttons">
+                <button id="confirmDelete" class="btn btn-danger">삭제</button>
+                <button id="cancelDelete" class="btn btn-secondary">취소</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/blog-detail.js?v=2.0"></script>
 </body>
 </html> 

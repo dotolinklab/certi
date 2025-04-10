@@ -933,7 +933,15 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // 폼 HTML 생성
             postFormContainer.innerHTML = `
-                <h3>${postId ? '게시물 수정' : '새 게시물 작성'}</h3>
+                <div class="post-form-header">
+                    <h3>${postId ? '게시물 수정' : '새 게시물 작성'}</h3>
+                    <div class="post-form-actions">
+                        <button type="button" id="cancelBtn" class="btn-secondary">취소</button>
+                        <button type="button" id="submitPostBtn" class="btn-primary">
+                            ${postId ? '게시물 수정' : '게시물 등록'}
+                        </button>
+                    </div>
+                </div>
                 <form id="postForm" class="dashboard-form">
                     <input type="hidden" id="postId" value="${postId || ''}">
                     
@@ -961,13 +969,6 @@ document.addEventListener('DOMContentLoaded', function() {
                         <input type="file" id="postImage" accept="image/*">
                         <div id="imagePreview" class="image-preview"></div>
                     </div>
-                    
-                    <div class="form-buttons">
-                        <button type="button" id="cancelBtn" class="btn-secondary">취소</button>
-                        <button type="submit" id="submitBtn" class="btn-primary">
-                            ${postId ? '게시물 수정' : '게시물 등록'}
-                        </button>
-                    </div>
                 </form>
             `;
             
@@ -976,6 +977,59 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // 폼 이벤트 리스너 설정
             setupPostFormEvents(postId);
+            
+            // 스타일 추가
+            const style = document.createElement('style');
+            style.textContent = `
+                .post-form-header {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    margin-bottom: 20px;
+                    padding-bottom: 10px;
+                    border-bottom: 1px solid #e5e5e5;
+                }
+                
+                .post-form-actions {
+                    display: flex;
+                    gap: 10px;
+                }
+                
+                .post-form-container h3 {
+                    margin: 0;
+                    color: #333;
+                    font-size: 1.5rem;
+                }
+                
+                #cancelBtn, #submitPostBtn {
+                    padding: 8px 16px;
+                    border-radius: 4px;
+                    font-weight: 500;
+                    cursor: pointer;
+                    transition: background-color 0.3s;
+                }
+                
+                #cancelBtn {
+                    background-color: #f1f1f1;
+                    color: #333;
+                    border: 1px solid #ddd;
+                }
+                
+                #submitPostBtn {
+                    background-color: #4a6cf7;
+                    color: white;
+                    border: none;
+                }
+                
+                #cancelBtn:hover {
+                    background-color: #e5e5e5;
+                }
+                
+                #submitPostBtn:hover {
+                    background-color: #3a5ce7;
+                }
+            `;
+            document.head.appendChild(style);
         }
         
         // 게시물 수정인 경우 기존 데이터 로드
@@ -988,6 +1042,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function setupPostFormEvents(postId) {
         const postForm = document.getElementById('postForm');
         const cancelBtn = document.getElementById('cancelBtn');
+        const submitPostBtn = document.getElementById('submitPostBtn');
         const plainTextBtn = document.getElementById('plainTextBtn');
         const htmlEditorBtn = document.getElementById('htmlEditorBtn');
         const postContent = document.getElementById('postContent');
@@ -996,6 +1051,9 @@ document.addEventListener('DOMContentLoaded', function() {
         const postImage = document.getElementById('postImage');
         const imagePreview = document.getElementById('imagePreview');
         
+        // 수정 중 메뉴 비활성화
+        disableMenuNavigation();
+        
         // 현재 에디터 모드
         let editorMode = 'plain';
         
@@ -1003,6 +1061,12 @@ document.addEventListener('DOMContentLoaded', function() {
         cancelBtn.addEventListener('click', function() {
             // 폼 제거하고 목록으로 돌아가기
             resetPostsView();
+            enableMenuNavigation();
+        });
+        
+        // 제출 버튼 이벤트
+        submitPostBtn.addEventListener('click', function() {
+            savePostForm();
         });
         
         // 에디터 모드 전환 버튼
@@ -1035,10 +1099,8 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
         
-        // 폼 제출 이벤트
-        postForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
+        // 폼 제출 처리 함수
+        function savePostForm() {
             const title = document.getElementById('postTitle').value;
             const content = document.getElementById('postContent').value;
             const postIdValue = document.getElementById('postId').value;
@@ -1054,6 +1116,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     savePost(title, content, e.target.result, postIdValue, editorMode);
+                    enableMenuNavigation();
                 };
                 reader.readAsDataURL(imageFile);
             } else {
@@ -1070,8 +1133,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
                 
                 savePost(title, content, existingImage, postIdValue, editorMode);
+                enableMenuNavigation();
             }
-        });
+        }
         
         // 에디터 모드 전환 함수
         function switchEditorMode(mode) {
@@ -1098,6 +1162,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 previewContent.innerHTML = '<p style="color: red;">HTML 오류가 발생했습니다. 코드를 확인해주세요.</p>';
             }
         }
+        
+        // 폼 제출 이벤트
+        postForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            savePostForm();
+        });
     }
     
     // 게시물 데이터 로드 (수정 시)
@@ -1203,4 +1273,32 @@ document.addEventListener('DOMContentLoaded', function() {
             history.pushState({}, '', `admin-dashboard.html?newpost=true`);
         }
     }, false);
+
+    // 메뉴 네비게이션 비활성화
+    function disableMenuNavigation() {
+        const menuItems = document.querySelectorAll('.sidebar-menu .menu-item a, .mobile-menu-list .menu-item a');
+        
+        menuItems.forEach(item => {
+            item._originalClickHandler = item.onclick;
+            item.onclick = function(e) {
+                e.preventDefault();
+                alert('게시물 수정 중입니다. 먼저 저장하거나 취소해주세요.');
+                return false;
+            };
+        });
+    }
+
+    // 메뉴 네비게이션 다시 활성화
+    function enableMenuNavigation() {
+        const menuItems = document.querySelectorAll('.sidebar-menu .menu-item a, .mobile-menu-list .menu-item a');
+        
+        menuItems.forEach(item => {
+            if (item._originalClickHandler) {
+                item.onclick = item._originalClickHandler;
+                delete item._originalClickHandler;
+            } else {
+                item.onclick = null;
+            }
+        });
+    }
 }); 
