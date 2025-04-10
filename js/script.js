@@ -403,4 +403,19 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // 선택적으로 대화 기록 로드
     // loadChatHistory();
+
+    // 모바일 메뉴 토글
+    const menuButton = document.querySelector('.mobile-menu-button');
+    const navMenu = document.querySelector('.nav-menu');
+
+    menuButton.addEventListener('click', function() {
+        navMenu.classList.toggle('active');
+    });
+
+    // 메뉴 외부 클릭시 닫기
+    document.addEventListener('click', function(event) {
+        if (!navMenu.contains(event.target) && !menuButton.contains(event.target)) {
+            navMenu.classList.remove('active');
+        }
+    });
 });
