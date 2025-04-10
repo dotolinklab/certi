@@ -1,4 +1,4 @@
-# GitHub Pages에 정적 콘텐츠 배포를 위한 간단한 워크플로우
+# GitHub Pages에 정적 콘텐츠 배포를 위한 워크플로우
 name: Deploy static content to Pages
 
 on:
