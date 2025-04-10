@@ -122,18 +122,19 @@
     align-items: center;
     justify-content: flex-start;
     text-align: left;
-    margin-bottom: 5px;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
 }
 
 .remember-me input {
     width: auto;
-    margin-right: 10px;
+    margin-right: 8px;
 }
 
 .remember-me label {
     margin-bottom: 0;
     font-weight: 400;
-    white-space: nowrap;
+    font-size: 14px;
 }
 
 .login-row {
@@ -219,24 +220,44 @@
 
 @media (max-width: 576px) {
     .admin-section {
-        padding: 30px 15px;
+        padding: 20px 10px;
     }
     
     .auth-container {
-        max-width: 95%;
-        width: 95%;
+        max-width: 100%;
+        width: 100%;
+        border-radius: 0;
+        box-shadow: none;
     }
     
     .auth-form {
         padding: 15px;
     }
     
+    .form-group input {
+        padding: 10px;
+        font-size: 14px;
+    }
+    
+    .remember-me {
+        margin-bottom: 15px;
+    }
+    
+    .remember-me label {
+        font-size: 13px;
+    }
+    
+    .btn {
+        padding: 10px;
+        font-size: 15px;
+    }
+    
     .blog-post-detail {
-        padding: 20px;
+        padding: 15px;
     }
     
     .post-image-container {
-        height: 180px;
+        height: 160px;
     }
 }
 
