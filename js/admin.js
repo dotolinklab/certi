@@ -96,14 +96,40 @@ document.addEventListener('DOMContentLoaded', function() {
             localStorage.setItem('admin_name', user.name || user.id);
             localStorage.setItem('admin_role', user.role || 'admin');
             
-            // 관리자 대시보드로 리디렉션
-            window.location.href = 'admin-dashboard.html';
+            // 로그인 성공 메시지 표시 (선택적)
+            loginError.textContent = '로그인 성공! 페이지 이동 중...';
+            loginError.style.color = 'green';
+            
+            // 약간의 지연 후 리디렉션 (사용자에게 피드백 제공)
+            setTimeout(function() {
+                // 관리자 대시보드로 리디렉션
+                window.location.href = 'admin-dashboard.html';
+            }, 500);
         } else {
             // 로그인 실패
             loginError.textContent = '아이디 또는 비밀번호가 올바르지 않습니다.';
             adminPassword.value = '';
         }
     });
+    
+    // 로그인 버튼 클릭 이벤트 (2중 보호)
+    const loginButton = adminLoginForm.querySelector('button[type="submit"]');
+    if (loginButton) {
+        loginButton.addEventListener('click', function(e) {
+            if (!adminLoginForm.checkValidity()) {
+                return;
+            }
+            
+            e.preventDefault();
+            
+            const event = new Event('submit', {
+                bubbles: true,
+                cancelable: true
+            });
+            
+            adminLoginForm.dispatchEvent(event);
+        });
+    }
     
     // 회원가입 처리
     adminRegisterForm.addEventListener('submit', function(e) {
