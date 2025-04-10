@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', function() {
             menuButton.classList.toggle('active');
             mobileMenu.classList.toggle('active');
             overlay.classList.toggle('active');
-            document.body.classList.toggle('no-scroll');
+            document.body.classList.toggle('menu-open');
         });
         
         // 오버레이 클릭 시 메뉴 닫기
@@ -39,37 +39,69 @@ document.addEventListener('DOMContentLoaded', function() {
             menuButton.classList.remove('active');
             mobileMenu.classList.remove('active');
             overlay.classList.remove('active');
-            document.body.classList.remove('no-scroll');
-        }
-        
-        // 관리자 로그인 상태 확인 및 메뉴 변경
-        const adminLoginStatus = localStorage.getItem('adminLoggedIn');
-        const mobileLogoutBtn = document.getElementById('mobileLogoutBtn');
-        const mobileAdminBtn = document.getElementById('mobileAdminBtn');
-        
-        if (adminLoginStatus === 'true' && mobileLogoutBtn && mobileAdminBtn) {
-            mobileLogoutBtn.style.display = 'block';
-            mobileAdminBtn.textContent = '관리자 대시보드';
-        }
-        
-        // 모바일 로그아웃 기능
-        if (mobileLogoutBtn) {
-            mobileLogoutBtn.addEventListener('click', function(e) {
-                e.preventDefault();
-                localStorage.removeItem('adminLoggedIn');
-                alert('로그아웃되었습니다.');
-                location.reload();
-            });
+            document.body.classList.remove('menu-open');
         }
     }
     
-    // 관리자 로그인 상태에 따른 메인 메뉴 변경
-    const adminLoginBtn = document.getElementById('adminLoginBtn');
-    if (adminLoginBtn) {
+    // 관리자 로그인 상태 확인
+    checkAdminLoginStatus();
+    
+    // 관리자 로그인 상태 확인 함수
+    function checkAdminLoginStatus() {
         const adminLoginStatus = localStorage.getItem('adminLoggedIn');
+        const adminLoginBtn = document.getElementById('adminLoginBtn');
+        const mobileAdminBtn = document.getElementById('mobileAdminBtn');
+        const mobileLogoutBtn = document.getElementById('mobileLogoutBtn');
+        
         if (adminLoginStatus === 'true') {
-            adminLoginBtn.textContent = '관리자 대시보드';
+            // 데스크톱 메뉴
+            if (adminLoginBtn) {
+                adminLoginBtn.textContent = '관리자 대시보드';
+                adminLoginBtn.href = 'admin-dashboard.html';
+            }
+            
+            // 모바일 메뉴
+            if (mobileAdminBtn) {
+                mobileAdminBtn.textContent = '관리자 대시보드';
+                mobileAdminBtn.href = 'admin-dashboard.html';
+            }
+            
+            // 로그아웃 버튼 표시
+            if (mobileLogoutBtn) {
+                mobileLogoutBtn.style.display = 'flex';
+                mobileLogoutBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    logout();
+                });
+            }
+        } else {
+            // 관리자 로그인 상태가 아닌 경우
+            if (adminLoginBtn) {
+                adminLoginBtn.textContent = '관리자';
+                adminLoginBtn.href = 'admin-login.html';
+            }
+            
+            if (mobileAdminBtn) {
+                mobileAdminBtn.textContent = '관리자';
+                mobileAdminBtn.href = 'admin-login.html';
+            }
+            
+            if (mobileLogoutBtn) {
+                mobileLogoutBtn.style.display = 'none';
+            }
         }
+    }
+    
+    // 로그아웃 함수
+    function logout() {
+        localStorage.removeItem('adminLoggedIn');
+        localStorage.removeItem('currentAdmin');
+        localStorage.removeItem('admin_token');
+        localStorage.removeItem('admin_name');
+        localStorage.removeItem('admin_role');
+        
+        alert('로그아웃되었습니다.');
+        location.reload();
     }
     
     // 카드에 호버 효과 추가
