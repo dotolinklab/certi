@@ -184,7 +184,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // 게시물 작성 폼 표시
         setTimeout(() => {
             showPostForm(editPostId);
-        }, 100);
+        }, 500); // 시간을 늘려 탭 전환이 완료된 후 폼이 표시되도록 함
     } else {
         // 기본값은 overview 탭
         changeTab('overview');
@@ -1057,8 +1057,15 @@ document.addEventListener('DOMContentLoaded', function() {
             } else {
                 // 기존 이미지 유지 또는 기본 이미지 사용
                 const posts = JSON.parse(localStorage.getItem('blogPosts')) || [];
-                const existingPost = posts.find(post => post.id === postIdValue);
-                const existingImage = existingPost ? existingPost.image : 'images/default-post-image.jpg';
+                let existingImage = 'images/default-post-image.jpg';
+                
+                // 수정 모드인 경우 기존 이미지 사용
+                if (postIdValue) {
+                    const existingPost = posts.find(post => post.id === postIdValue);
+                    if (existingPost && existingPost.image) {
+                        existingImage = existingPost.image;
+                    }
+                }
                 
                 savePost(title, content, existingImage, postIdValue, editorMode);
             }
@@ -1181,4 +1188,17 @@ document.addEventListener('DOMContentLoaded', function() {
         // URL 매개변수 제거
         history.pushState({}, '', 'admin-dashboard.html');
     }
+
+    // 새 게시물 작성 링크 클릭 이벤트 추가
+    document.addEventListener('click', function(e) {
+        const target = e.target.closest('a[href="admin-dashboard.html?newpost=true"]');
+        if (target) {
+            e.preventDefault();
+            changeTab('posts');
+            setTimeout(() => {
+                showPostForm(null);
+            }, 500); // 충분한 시간을 주어 탭 전환이 완료된 후 폼이 표시되도록 함
+            history.pushState({}, '', `admin-dashboard.html?newpost=true`);
+        }
+    }, false);
 }); 
