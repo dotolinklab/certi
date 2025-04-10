@@ -1,4 +1,28 @@
 document.addEventListener('DOMContentLoaded', function() {
+    // 모바일 디바이스에서 줌 방지
+    const meta = document.querySelector('meta[name="viewport"]');
+    if (meta) {
+        meta.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no');
+    }
+    
+    // 화면 크기에 맞게 auth-container 높이 조절
+    function adjustAuthContainer() {
+        const authContainer = document.querySelector('.auth-container');
+        if (authContainer && window.innerWidth <= 576) {
+            const windowHeight = window.innerHeight;
+            const headerHeight = document.querySelector('header').offsetHeight;
+            const footerHeight = document.querySelector('footer').offsetHeight;
+            
+            // 컨테이너 높이를 화면 높이에서 헤더와 푸터 높이를 뺀 값으로 설정
+            const containerHeight = windowHeight - (headerHeight + footerHeight) - 40; // 여유 공간 40px
+            authContainer.style.minHeight = containerHeight + 'px';
+        }
+    }
+    
+    // 페이지 로드 시와 리사이즈 시 컨테이너 높이 조절
+    adjustAuthContainer();
+    window.addEventListener('resize', adjustAuthContainer);
+    
     // 탭 전환 관련 요소
     const loginTabBtn = document.getElementById('loginTabBtn');
     const registerTabBtn = document.getElementById('registerTabBtn');
@@ -66,45 +90,61 @@ document.addEventListener('DOMContentLoaded', function() {
         const id = adminId.value.trim();
         const password = adminPassword.value;
         
+        console.log('로그인 시도:', id);
+        
         // 아이디 또는 비밀번호가 비어있는 경우
         if (!id || !password) {
             loginError.textContent = '아이디와 비밀번호를 모두 입력해주세요.';
             return;
         }
         
+        // 디버깅: 사용자 목록 확인
+        console.log('현재 관리자 목록:', adminUsers);
+        
         // 사용자 정보 확인
         const user = adminUsers.find(user => user.id === id && user.password === password);
         
+        // 디버깅: 찾은 사용자 정보
+        console.log('찾은 사용자:', user);
+        
         if (user) {
             // 로그인 성공
-            if (rememberMe.checked) {
-                localStorage.setItem('rememberedAdmin', JSON.stringify({ id: id }));
-            } else {
-                localStorage.removeItem('rememberedAdmin');
+            try {
+                if (rememberMe.checked) {
+                    localStorage.setItem('rememberedAdmin', JSON.stringify({ id: id }));
+                } else {
+                    localStorage.removeItem('rememberedAdmin');
+                }
+                
+                // 현재 로그인 정보 저장 - 대시보드 시스템
+                localStorage.setItem('currentAdmin', JSON.stringify({
+                    id: user.id,
+                    name: user.name,
+                    email: user.email,
+                    role: user.role
+                }));
+                
+                // 블로그 시스템과의 호환성을 위한 저장
+                localStorage.setItem('admin_token', 'true');
+                localStorage.setItem('admin_name', user.name || user.id);
+                localStorage.setItem('admin_role', user.role || 'admin');
+                
+                console.log('로그인 성공! 리디렉션 예정');
+                
+                // 로그인 성공 메시지 표시
+                loginError.textContent = '로그인 성공! 페이지 이동 중...';
+                loginError.style.color = 'green';
+                
+                // 약간의 지연 후 리디렉션
+                setTimeout(function() {
+                    // 관리자 대시보드로 리디렉션
+                    window.location.href = 'admin-dashboard.html';
+                }, 1000);
+            } catch (error) {
+                console.error('localStorage 저장 오류:', error);
+                loginError.textContent = '로그인 처리 중 오류가 발생했습니다. 다시 시도해주세요.';
+                loginError.style.color = 'red';
             }
-            
-            // 현재 로그인 정보 저장 - 대시보드 시스템
-            localStorage.setItem('currentAdmin', JSON.stringify({
-                id: user.id,
-                name: user.name,
-                email: user.email,
-                role: user.role
-            }));
-            
-            // 블로그 시스템과의 호환성을 위한 저장
-            localStorage.setItem('admin_token', 'true');
-            localStorage.setItem('admin_name', user.name || user.id);
-            localStorage.setItem('admin_role', user.role || 'admin');
-            
-            // 로그인 성공 메시지 표시 (선택적)
-            loginError.textContent = '로그인 성공! 페이지 이동 중...';
-            loginError.style.color = 'green';
-            
-            // 약간의 지연 후 리디렉션 (사용자에게 피드백 제공)
-            setTimeout(function() {
-                // 관리자 대시보드로 리디렉션
-                window.location.href = 'admin-dashboard.html';
-            }, 500);
         } else {
             // 로그인 실패
             loginError.textContent = '아이디 또는 비밀번호가 올바르지 않습니다.';
@@ -200,17 +240,43 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // 초기 관리자 계정 생성 (최초 한 번만 실행)
     function createInitialAdmin() {
-        if (adminUsers.length === 0) {
-            const defaultAdmin = {
-                id: 'admin',
-                password: 'admin123',
-                name: '기본 관리자',
-                email: 'admin@example.com',
-                role: 'admin',
-                createdAt: new Date().toISOString()
-            };
-            adminUsers.push(defaultAdmin);
-            localStorage.setItem('adminUsers', JSON.stringify(adminUsers));
+        // localStorage가 사용 가능한지 확인
+        try {
+            // 기존 관리자 목록 로드 시도
+            const existingAdmins = JSON.parse(localStorage.getItem('adminUsers')) || [];
+            console.log('기존 관리자 수:', existingAdmins.length);
+            
+            if (existingAdmins.length === 0) {
+                console.log('초기 관리자 계정 생성 중...');
+                const defaultAdmin = {
+                    id: 'admin',
+                    password: 'admin123',
+                    name: '기본 관리자',
+                    email: 'admin@example.com',
+                    role: 'admin',
+                    createdAt: new Date().toISOString()
+                };
+                
+                existingAdmins.push(defaultAdmin);
+                localStorage.setItem('adminUsers', JSON.stringify(existingAdmins));
+                console.log('초기 관리자 계정 생성 완료');
+                
+                // 전역 변수 adminUsers 업데이트
+                adminUsers = existingAdmins;
+            }
+        } catch (error) {
+            console.error('localStorage 오류:', error);
+            // localStorage에 접근할 수 없는 경우 메모리에 임시 저장
+            if (adminUsers.length === 0) {
+                adminUsers.push({
+                    id: 'admin',
+                    password: 'admin123',
+                    name: '기본 관리자',
+                    email: 'admin@example.com',
+                    role: 'admin',
+                    createdAt: new Date().toISOString()
+                });
+            }
         }
     }
     
