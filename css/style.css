@@ -1,4 +1,67 @@
 /* 기본 스타일 리셋 */
+@font-face {
+    font-family: 'Paperlogy';
+    src: url('../fonts/Paperlogy-1Thin.ttf') format('truetype');
+    font-weight: 100;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Paperlogy';
+    src: url('../fonts/Paperlogy-2ExtraLight.ttf') format('truetype');
+    font-weight: 200;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Paperlogy';
+    src: url('../fonts/Paperlogy-3Light.ttf') format('truetype');
+    font-weight: 300;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Paperlogy';
+    src: url('../fonts/Paperlogy-4Regular.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Paperlogy';
+    src: url('../fonts/Paperlogy-5Medium.ttf') format('truetype');
+    font-weight: 500;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Paperlogy';
+    src: url('../fonts/Paperlogy-6SemiBold.ttf') format('truetype');
+    font-weight: 600;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Paperlogy';
+    src: url('../fonts/Paperlogy-7Bold.ttf') format('truetype');
+    font-weight: 700;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Paperlogy';
+    src: url('../fonts/Paperlogy-8ExtraBold.ttf') format('truetype');
+    font-weight: 800;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Paperlogy';
+    src: url('../fonts/Paperlogy-9Black.ttf') format('truetype');
+    font-weight: 900;
+    font-style: normal;
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -6,7 +69,8 @@
 }
 
 body {
-    font-family: 'Noto Sans KR', sans-serif;
+    font-family: 'Paperlogy', 'Noto Sans KR', sans-serif;
+    font-weight: 400;
     line-height: 1.6;
     color: #333;
     margin: 0;
@@ -33,7 +97,7 @@ ul {
 header {
     background-color: white;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    padding: 15px 0;
+    padding: 10px 0;
 }
 
 header .container {
@@ -46,26 +110,42 @@ header .container {
 .logo {
     display: flex;
     align-items: center;
-}
-
-.logo-image {
-    height: 50px;
-    width: auto;
-    object-fit: contain;
-}
-
-.logo h1 {
-    margin: 0;
-    font-size: 1.5rem;
+    padding: 5px 0;
 }
 
 .logo a {
-    color: #303f9f;
+    display: flex;
+    align-items: center;
+    gap: 12px;
     text-decoration: none;
-    transition: color 0.3s;
+    transition: all 0.3s ease;
+}
+
+.logo-image {
+    height: 28px;
+    width: auto;
+    object-fit: contain;
+    vertical-align: middle;
+}
+
+.logo-text {
+    font-family: 'Paperlogy', sans-serif;
+    font-weight: 800;
+    font-size: 24px;
+    color: #333;
+    margin: 0;
+    letter-spacing: -0.3px;
 }
 
 .logo a:hover {
+    opacity: 0.85;
+}
+
+.logo a:hover .logo-image {
+    /* hover 효과 제거 */
+}
+
+.logo a:hover .logo-text {
     color: #3f51b5;
 }
 
@@ -74,11 +154,16 @@ header .container {
     color: #666;
 }
 
+nav {
+    display: flex;
+    align-items: center;
+}
+
 nav ul {
     display: flex;
-    list-style: none;
-    padding: 0;
+    gap: 25px;
     margin: 0;
+    padding: 0;
 }
 
 nav li {
@@ -86,9 +171,10 @@ nav li {
 }
 
 nav a {
+    font-family: 'Paperlogy', sans-serif;
+    font-weight: 500;
     color: #666;
     text-decoration: none;
-    font-weight: 500;
     transition: color 0.3s;
 }
 
@@ -106,15 +192,27 @@ nav a.active {
 }
 
 .main-banner h2 {
-    font-size: 2.5rem;
+    font-family: 'Paperlogy', sans-serif;
+    font-weight: 700;
+    font-size: 2.8rem;
     margin-bottom: 15px;
+    letter-spacing: -1px;
 }
 
 .main-banner p {
-    font-size: 1.2rem;
+    font-family: 'Paperlogy', sans-serif;
+    font-weight: 400;
+    font-size: 1.3rem;
     opacity: 0.9;
     max-width: 800px;
     margin: 0 auto;
+    letter-spacing: -0.5px;
+}
+
+.main-banner .highlight-text {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #ff4444;
 }
 
 /* 카테고리 스타일 */
@@ -132,6 +230,8 @@ nav a.active {
 }
 
 .category-item {
+    font-family: 'Paperlogy', sans-serif;
+    font-weight: 500;
     padding: 10px 15px;
     background-color: #f5f5f5;
     border-radius: 30px;
@@ -185,6 +285,8 @@ nav a.active {
 }
 
 .document-card h3 {
+    font-family: 'Paperlogy', sans-serif;
+    font-weight: 600;
     font-size: 1.4rem;
     margin: 20px 20px 10px;
     color: #303f9f;
