@@ -1,47 +1,75 @@
 // DOM이 로드된 후 실행
 document.addEventListener('DOMContentLoaded', function() {
     // 햄버거 메뉴 기능 구현
-    const mobileMenuButton = document.querySelector('.mobile-menu-button');
-    const navMenu = document.querySelector('.nav-menu');
+    const menuButton = document.querySelector('.mobile-menu-button');
+    const mobileMenu = document.querySelector('.mobile-menu');
+    const overlay = document.querySelector('.mobile-menu-overlay');
+    const closeBtn = document.querySelector('.mobile-close-btn');
     
-    if (mobileMenuButton && navMenu) {
-        // 메뉴 버튼 클릭 이벤트
-        mobileMenuButton.addEventListener('click', function(e) {
-            e.stopPropagation(); // 이벤트 버블링 방지
-            navMenu.classList.toggle('active');
-            
-            // 아이콘 변경 및 접근성 속성 업데이트
-            const isExpanded = navMenu.classList.contains('active');
-            this.setAttribute('aria-expanded', isExpanded);
-            this.setAttribute('aria-label', isExpanded ? '메뉴 닫기' : '메뉴 열기');
-            
-            const icon = this.querySelector('i');
-            if (isExpanded) {
-                icon.classList.remove('fa-bars');
-                icon.classList.add('fa-times');
-            } else {
-                icon.classList.remove('fa-times');
-                icon.classList.add('fa-bars');
-            }
+    if (menuButton && mobileMenu && overlay) {
+        menuButton.addEventListener('click', function() {
+            menuButton.classList.toggle('active');
+            mobileMenu.classList.toggle('active');
+            overlay.classList.toggle('active');
+            document.body.classList.toggle('no-scroll');
         });
         
-        // 메뉴 내부 클릭 시 이벤트 전파 막기
-        navMenu.addEventListener('click', function(e) {
-            e.stopPropagation();
+        // 오버레이 클릭 시 메뉴 닫기
+        overlay.addEventListener('click', function() {
+            closeMenu();
         });
         
-        // 문서 어느 곳이든 클릭 시 메뉴 닫기
-        document.addEventListener('click', function(event) {
-            if (navMenu.classList.contains('active') && !navMenu.contains(event.target) && !mobileMenuButton.contains(event.target)) {
-                navMenu.classList.remove('active');
-                mobileMenuButton.setAttribute('aria-expanded', 'false');
-                mobileMenuButton.setAttribute('aria-label', '메뉴 열기');
-                
-                const icon = mobileMenuButton.querySelector('i');
-                icon.classList.remove('fa-times');
-                icon.classList.add('fa-bars');
-            }
+        // 닫기 버튼 클릭 시 메뉴 닫기
+        if (closeBtn) {
+            closeBtn.addEventListener('click', function() {
+                closeMenu();
+            });
+        }
+        
+        // 모바일 메뉴 내 링크 클릭 시 메뉴 닫기
+        const mobileMenuLinks = document.querySelectorAll('.mobile-menu-list a');
+        mobileMenuLinks.forEach(link => {
+            link.addEventListener('click', function() {
+                closeMenu();
+            });
         });
+        
+        // 메뉴 닫기 함수
+        function closeMenu() {
+            menuButton.classList.remove('active');
+            mobileMenu.classList.remove('active');
+            overlay.classList.remove('active');
+            document.body.classList.remove('no-scroll');
+        }
+        
+        // 관리자 로그인 상태 확인 및 메뉴 변경
+        const adminLoginStatus = localStorage.getItem('adminLoggedIn');
+        const mobileLogoutBtn = document.getElementById('mobileLogoutBtn');
+        const mobileAdminBtn = document.getElementById('mobileAdminBtn');
+        
+        if (adminLoginStatus === 'true' && mobileLogoutBtn && mobileAdminBtn) {
+            mobileLogoutBtn.style.display = 'block';
+            mobileAdminBtn.textContent = '관리자 대시보드';
+        }
+        
+        // 모바일 로그아웃 기능
+        if (mobileLogoutBtn) {
+            mobileLogoutBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                localStorage.removeItem('adminLoggedIn');
+                alert('로그아웃되었습니다.');
+                location.reload();
+            });
+        }
+    }
+    
+    // 관리자 로그인 상태에 따른 메인 메뉴 변경
+    const adminLoginBtn = document.getElementById('adminLoginBtn');
+    if (adminLoginBtn) {
+        const adminLoginStatus = localStorage.getItem('adminLoggedIn');
+        if (adminLoginStatus === 'true') {
+            adminLoginBtn.textContent = '관리자 대시보드';
+        }
     }
     
     // 카드에 호버 효과 추가

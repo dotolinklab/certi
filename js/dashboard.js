@@ -754,57 +754,54 @@ document.addEventListener('DOMContentLoaded', function() {
     document.head.appendChild(style);
 
     // 햄버거 메뉴 기능 구현
-    const hamburgerBtn = document.querySelector('.mobile-menu-button');
-    const menuNav = document.querySelector('.nav-menu');
+    const mobileMenuButton = document.querySelector('.mobile-menu-button');
+    const mobileMenu = document.querySelector('.mobile-menu');
+    const body = document.body;
     
-    if (hamburgerBtn && menuNav) {
-        hamburgerBtn.addEventListener('click', function(e) {
-            e.stopPropagation(); // 이벤트 버블링 방지
-            menuNav.classList.toggle('active');
-            const isExpanded = menuNav.classList.contains('active');
-            this.setAttribute('aria-expanded', isExpanded);
-            this.setAttribute('aria-label', isExpanded ? '메뉴 닫기' : '메뉴 열기');
+    if (mobileMenuButton && mobileMenu) {
+        mobileMenuButton.addEventListener('click', function() {
+            mobileMenuButton.classList.toggle('active');
+            mobileMenu.classList.toggle('active');
+            body.classList.toggle('menu-open');
             
-            // 아이콘 변경
-            const icon = this.querySelector('i');
-            if (isExpanded) {
-                icon.classList.remove('fa-bars');
-                icon.classList.add('fa-times');
-            } else {
-                icon.classList.remove('fa-times');
-                icon.classList.add('fa-bars');
+            // 오버레이 생성 및 활성화
+            let overlay = document.querySelector('.mobile-menu-overlay');
+            if (!overlay) {
+                overlay = document.createElement('div');
+                overlay.className = 'mobile-menu-overlay';
+                document.body.appendChild(overlay);
             }
-        });
-        
-        // 메뉴 내부 클릭 시 이벤트 전파 막기
-        menuNav.addEventListener('click', function(e) {
-            e.stopPropagation();
-        });
-        
-        // 문서 어느 곳이든 클릭 시 메뉴 닫기
-        document.addEventListener('click', function() {
-            if (menuNav.classList.contains('active')) {
-                menuNav.classList.remove('active');
-                hamburgerBtn.setAttribute('aria-expanded', 'false');
-                hamburgerBtn.setAttribute('aria-label', '메뉴 열기');
-                const icon = hamburgerBtn.querySelector('i');
-                icon.classList.remove('fa-times');
-                icon.classList.add('fa-bars');
-            }
+            overlay.classList.toggle('active');
+            
+            // 오버레이 클릭 시 메뉴 닫기
+            overlay.addEventListener('click', function() {
+                mobileMenuButton.classList.remove('active');
+                mobileMenu.classList.remove('active');
+                overlay.classList.remove('active');
+                body.classList.remove('menu-open');
+            });
         });
     }
     
-    // 로그아웃 버튼 이벤트 연결
+    // 로그아웃 기능
     const adminLogoutLink = document.getElementById('adminLogoutLink');
-    if (adminLogoutLink) {
-        adminLogoutLink.addEventListener('click', function(e) {
-            e.preventDefault();
-            if (confirm('정말 로그아웃하시겠습니까?')) {
-                localStorage.removeItem('admin_token');
-                localStorage.removeItem('admin_name');
-                localStorage.removeItem('admin_role');
-                window.location.href = 'index.html';
-            }
-        });
+    const mobileAdminLogoutLink = document.getElementById('mobileAdminLogoutLink');
+    
+    function handleLogout(e) {
+        e.preventDefault();
+        localStorage.removeItem('currentAdmin');
+        localStorage.removeItem('admin_token');
+        localStorage.removeItem('admin_name');
+        localStorage.removeItem('admin_role');
+        
+        // 블로그 시스템 호환성을 위한 항목도 제거
+        localStorage.removeItem('adminLoggedIn');
+        
+        alert('로그아웃되었습니다.');
+        window.location.href = 'admin-login.html';
     }
+    
+    if (logoutBtn) logoutBtn.addEventListener('click', handleLogout);
+    if (adminLogoutLink) adminLogoutLink.addEventListener('click', handleLogout);
+    if (mobileAdminLogoutLink) mobileAdminLogoutLink.addEventListener('click', handleLogout);
 }); 

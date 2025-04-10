@@ -82,93 +82,137 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     // 로그인 처리
-    adminLoginForm.addEventListener('submit', function(e) {
+    adminLoginForm.addEventListener('submit', async function(e) {
         e.preventDefault();
         
         loginError.textContent = '';
+        loginError.style.color = 'red'; // 기본 색상 설정
         
+        // 입력값 가져오기
         const id = adminId.value.trim();
         const password = adminPassword.value;
         
         console.log('로그인 시도:', id);
         
-        // 아이디 또는 비밀번호가 비어있는 경우
+        // 입력 유효성 검사
         if (!id || !password) {
             loginError.textContent = '아이디와 비밀번호를 모두 입력해주세요.';
             return;
         }
         
-        // 디버깅: 사용자 목록 확인
-        console.log('현재 관리자 목록:', adminUsers);
-        
-        // 사용자 정보 확인
-        const user = adminUsers.find(user => user.id === id && user.password === password);
-        
-        // 디버깅: 찾은 사용자 정보
-        console.log('찾은 사용자:', user);
-        
-        if (user) {
-            // 로그인 성공
-            try {
+        try {
+            // 로컬 스토리지 사용 가능 확인
+            if (!window.localStorage) {
+                throw new Error('로컬 스토리지를 사용할 수 없습니다.');
+            }
+            
+            // 관리자 목록이 비어있는 경우 기본 관리자 생성
+            if (!adminUsers || adminUsers.length === 0) {
+                console.log('관리자 목록 초기화 중...');
+                adminUsers = [{
+                    id: 'admin',
+                    password: 'admin123',
+                    name: '기본 관리자',
+                    email: 'admin@example.com',
+                    role: 'admin',
+                    createdAt: new Date().toISOString()
+                }];
+                localStorage.setItem('adminUsers', JSON.stringify(adminUsers));
+            }
+            
+            // 기본 관리자 계정 확인 (admin/admin123)
+            if (id === 'admin' && password === 'admin123') {
+                console.log('기본 관리자 계정으로 로그인 성공');
+                
+                // 로그인 정보 저장
+                const userData = {
+                    id: 'admin',
+                    name: '기본 관리자',
+                    email: 'admin@example.com',
+                    role: 'admin',
+                    loginTime: new Date().toISOString()
+                };
+                
+                // 스토리지에 저장
+                localStorage.setItem('currentAdmin', JSON.stringify(userData));
+                localStorage.setItem('admin_token', 'true');
+                localStorage.setItem('admin_name', '기본 관리자');
+                localStorage.setItem('admin_role', 'admin');
+                
+                // 로그인 기억하기 저장
                 if (rememberMe.checked) {
                     localStorage.setItem('rememberedAdmin', JSON.stringify({ id: id }));
                 } else {
                     localStorage.removeItem('rememberedAdmin');
                 }
                 
-                // 현재 로그인 정보 저장 - 대시보드 시스템
-                localStorage.setItem('currentAdmin', JSON.stringify({
+                handleLoginSuccess();
+                return;
+            }
+            
+            // 일반 로그인 처리
+            console.log('등록된 관리자 목록:', adminUsers);
+            
+            const user = adminUsers.find(user => user.id === id && user.password === password);
+            
+            if (user) {
+                console.log('로그인 성공:', user.name);
+                
+                // 로그인 기억하기 저장
+                if (rememberMe.checked) {
+                    localStorage.setItem('rememberedAdmin', JSON.stringify({ id: id }));
+                } else {
+                    localStorage.removeItem('rememberedAdmin');
+                }
+                
+                // 현재 로그인 정보 저장
+                const userData = {
                     id: user.id,
                     name: user.name,
                     email: user.email,
-                    role: user.role
-                }));
+                    role: user.role || 'admin',
+                    loginTime: new Date().toISOString()
+                };
                 
-                // 블로그 시스템과의 호환성을 위한 저장
+                localStorage.setItem('currentAdmin', JSON.stringify(userData));
+                
+                // 블로그 시스템 호환성
                 localStorage.setItem('admin_token', 'true');
                 localStorage.setItem('admin_name', user.name || user.id);
                 localStorage.setItem('admin_role', user.role || 'admin');
                 
-                console.log('로그인 성공! 리디렉션 예정');
-                
-                // 로그인 성공 메시지 표시
-                loginError.textContent = '로그인 성공! 페이지 이동 중...';
-                loginError.style.color = 'green';
-                
-                // 약간의 지연 후 리디렉션
-                setTimeout(function() {
-                    // 관리자 대시보드로 리디렉션
-                    window.location.href = 'admin-dashboard.html';
-                }, 1000);
-            } catch (error) {
-                console.error('localStorage 저장 오류:', error);
-                loginError.textContent = '로그인 처리 중 오류가 발생했습니다. 다시 시도해주세요.';
-                loginError.style.color = 'red';
+                handleLoginSuccess();
+            } else {
+                console.log('로그인 실패: 사용자 정보 불일치');
+                loginError.textContent = '아이디 또는 비밀번호가 올바르지 않습니다.';
+                adminPassword.value = '';
             }
-        } else {
-            // 로그인 실패
-            loginError.textContent = '아이디 또는 비밀번호가 올바르지 않습니다.';
-            adminPassword.value = '';
+        } catch (error) {
+            console.error('로그인 처리 오류:', error);
+            loginError.textContent = '로그인 처리 중 오류가 발생했습니다: ' + error.message;
         }
     });
     
-    // 로그인 버튼 클릭 이벤트 (2중 보호)
-    const loginButton = adminLoginForm.querySelector('button[type="submit"]');
-    if (loginButton) {
-        loginButton.addEventListener('click', function(e) {
-            if (!adminLoginForm.checkValidity()) {
-                return;
-            }
+    // 로그인 성공 처리 함수
+    function handleLoginSuccess() {
+        loginError.textContent = '로그인 성공! 페이지 이동 중...';
+        loginError.style.color = 'green';
+        
+        // 로딩 표시기 추가
+        const loginButton = adminLoginForm.querySelector('button[type="submit"]');
+        if (loginButton) {
+            const originalText = loginButton.innerHTML;
+            loginButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 로그인 중...';
+            loginButton.disabled = true;
             
-            e.preventDefault();
-            
-            const event = new Event('submit', {
-                bubbles: true,
-                cancelable: true
-            });
-            
-            adminLoginForm.dispatchEvent(event);
-        });
+            // 리디렉션
+            setTimeout(function() {
+                window.location.href = 'admin-dashboard.html';
+            }, 800);
+        } else {
+            // 버튼을 찾지 못한 경우 바로 리디렉션
+            window.location.href = 'admin-dashboard.html';
+        }
     }
     
     // 회원가입 처리
