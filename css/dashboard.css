@@ -1,0 +1,725 @@
+/* 대시보드 공통 스타일 */
+.dashboard-section {
+    padding: 40px 0;
+    background-color: #f8f9fc;
+}
+
+/* 관리자 헤더 바 스타일 */
+.admin-header-bar {
+    background-color: #4e73df;
+    padding: 15px 0;
+    margin-bottom: 30px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.admin-header-bar .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.admin-title h2 {
+    font-size: 20px;
+    color: #fff;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    font-weight: 600;
+}
+
+.admin-title h2 i {
+    margin-right: 12px;
+    font-size: 22px;
+}
+
+.admin-info {
+    display: flex;
+    align-items: center;
+}
+
+.admin-info span {
+    margin-right: 18px;
+    font-weight: 500;
+    color: #fff;
+    font-size: 1rem;
+}
+
+.logout-btn {
+    background-color: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+}
+
+.logout-btn i {
+    margin-right: 8px;
+}
+
+.logout-btn:hover {
+    background-color: rgba(255, 255, 255, 0.3);
+}
+
+/* 대시보드 레이아웃 */
+.dashboard-wrapper {
+    display: flex;
+    gap: 25px;
+    margin-top: 20px;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.dashboard-sidebar {
+    width: 260px;
+    background: linear-gradient(180deg, #4e73df 0%, #224abe 100%);
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    padding: 0;
+    flex-shrink: 0;
+    overflow: hidden;
+}
+
+.sidebar-menu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar-menu .menu-item {
+    padding: 0;
+    margin: 0;
+    width: 100%;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-menu .menu-item:first-child {
+    overflow: hidden;
+}
+
+.sidebar-menu .menu-item:last-child {
+    border-bottom: none;
+    overflow: hidden;
+}
+
+.sidebar-menu .menu-item a {
+    display: flex;
+    align-items: center;
+    padding: 16px 20px;
+    color: rgba(255, 255, 255, 0.8);
+    text-decoration: none;
+    transition: all 0.3s;
+    width: 100%;
+    font-weight: 500;
+}
+
+.sidebar-menu .menu-item a i {
+    margin-right: 12px;
+    width: 20px;
+    text-align: center;
+    font-size: 18px;
+}
+
+.sidebar-menu .menu-item a:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #fff;
+}
+
+.sidebar-menu .menu-item.menu-active {
+    background-color: #fff;
+    position: relative;
+}
+
+.sidebar-menu .menu-item.menu-active::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 4px;
+    background-color: #36b9cc;
+}
+
+.sidebar-menu .menu-item.menu-active a {
+    background-color: #fff;
+    color: #4e73df;
+    font-weight: 600;
+}
+
+.dashboard-content {
+    flex-grow: 1;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    padding: 30px;
+    min-height: 650px;
+}
+
+/* 대시보드 탭 */
+.dashboard-tab {
+    display: none;
+}
+
+.dashboard-tab.active {
+    display: block;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+#posts, #users, #overview, #settings {
+    padding: 0;
+}
+
+.dashboard-tab h3 {
+    font-size: 22px;
+    margin-top: 0;
+    margin-bottom: 25px;
+    color: #2e384d;
+    display: flex;
+    align-items: center;
+    font-weight: 600;
+}
+
+.dashboard-tab h3 i {
+    margin-right: 12px;
+    color: #4e73df;
+}
+
+/* 통계 카드 */
+.stats-container {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 25px;
+    margin-bottom: 35px;
+}
+
+.stat-card {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    padding: 25px;
+    display: flex;
+    align-items: center;
+    transition: transform 0.3s, box-shadow 0.3s;
+    border-left: 5px solid;
+}
+
+.stat-card:nth-child(1) {
+    border-left-color: #4e73df;
+}
+
+.stat-card:nth-child(2) {
+    border-left-color: #1cc88a;
+}
+
+.stat-card:nth-child(3) {
+    border-left-color: #36b9cc;
+}
+
+.stat-card:nth-child(4) {
+    border-left-color: #f6c23e;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+.stat-icon {
+    font-size: 26px;
+    margin-right: 18px;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+}
+
+.stat-card:nth-child(1) .stat-icon {
+    color: #4e73df;
+    background-color: rgba(78, 115, 223, 0.1);
+}
+
+.stat-card:nth-child(2) .stat-icon {
+    color: #1cc88a;
+    background-color: rgba(28, 200, 138, 0.1);
+}
+
+.stat-card:nth-child(3) .stat-icon {
+    color: #36b9cc;
+    background-color: rgba(54, 185, 204, 0.1);
+}
+
+.stat-card:nth-child(4) .stat-icon {
+    color: #f6c23e;
+    background-color: rgba(246, 194, 62, 0.1);
+}
+
+.stat-info h3 {
+    font-size: 16px;
+    margin: 0 0 8px;
+    color: #6e7687;
+    font-weight: 500;
+}
+
+.stat-info p {
+    font-size: 28px;
+    font-weight: 700;
+    margin: 0;
+}
+
+.stat-card:nth-child(1) .stat-info p {
+    color: #4e73df;
+}
+
+.stat-card:nth-child(2) .stat-info p {
+    color: #1cc88a;
+}
+
+.stat-card:nth-child(3) .stat-info p {
+    color: #36b9cc;
+}
+
+.stat-card:nth-child(4) .stat-info p {
+    color: #f6c23e;
+}
+
+/* 최근 활동 */
+.recent-activity {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    padding: 25px;
+}
+
+.activity-container {
+    margin-top: 20px;
+}
+
+.activity-item {
+    display: flex;
+    align-items: flex-start;
+    padding: 15px 0;
+    border-bottom: 1px solid #edf2f7;
+}
+
+.activity-item:last-child {
+    border-bottom: none;
+}
+
+.activity-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: rgba(78, 115, 223, 0.1);
+    color: #4e73df;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+    font-size: 16px;
+}
+
+.activity-content {
+    flex: 1;
+}
+
+.activity-content p {
+    margin: 0 0 5px;
+    color: #2e384d;
+    font-weight: 500;
+}
+
+.activity-time {
+    color: #939eaf;
+    font-size: 0.85rem;
+}
+
+.no-activity {
+    color: #939eaf;
+    text-align: center;
+    font-style: italic;
+    padding: 20px 0;
+}
+
+/* 탭 헤더 스타일 */
+.tab-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #edf2f7;
+}
+
+/* 테이블 스타일 */
+.table-container {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    margin-top: 25px;
+    overflow: hidden;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.data-table th,
+.data-table td {
+    padding: 15px;
+    text-align: left;
+    border-bottom: 1px solid #edf2f7;
+}
+
+.data-table thead th {
+    background-color: #f8fafd;
+    color: #2e384d;
+    font-weight: 600;
+    position: sticky;
+    top: 0;
+}
+
+.data-table tbody tr:hover {
+    background-color: #f9fbfd;
+}
+
+.table-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.btn-view,
+.btn-edit,
+.btn-delete {
+    width: 35px;
+    height: 35px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s;
+    cursor: pointer;
+}
+
+.btn-view {
+    background-color: rgba(78, 115, 223, 0.1);
+    color: #4e73df;
+}
+
+.btn-edit {
+    background-color: rgba(28, 200, 138, 0.1);
+    color: #1cc88a;
+}
+
+.btn-delete {
+    background-color: rgba(231, 74, 59, 0.1);
+    color: #e74a3b;
+}
+
+.btn-view:hover {
+    background-color: rgba(78, 115, 223, 0.2);
+}
+
+.btn-edit:hover {
+    background-color: rgba(28, 200, 138, 0.2);
+}
+
+.btn-delete:hover {
+    background-color: rgba(231, 74, 59, 0.2);
+}
+
+/* 역할 뱃지 */
+.role-badge {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.role-badge.superadmin {
+    background-color: rgba(231, 74, 59, 0.1);
+    color: #e74a3b;
+}
+
+.role-badge.admin {
+    background-color: rgba(78, 115, 223, 0.1);
+    color: #4e73df;
+}
+
+.role-badge.editor {
+    background-color: rgba(28, 200, 138, 0.1);
+    color: #1cc88a;
+}
+
+/* 검색 필터 */
+.search-filter {
+    margin-bottom: 25px;
+}
+
+.search-filter input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: all 0.3s;
+    background-color: #f8fafd;
+}
+
+.search-filter input:focus {
+    border-color: #4e73df;
+    box-shadow: 0 0 0 3px rgba(78, 115, 223, 0.1);
+    outline: none;
+}
+
+/* 버튼 스타일 */
+.btn-primary {
+    background-color: #4e73df;
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    transition: all 0.3s;
+}
+
+.btn-primary i {
+    margin-right: 8px;
+}
+
+.btn-primary:hover {
+    background-color: #3a5ccc;
+    box-shadow: 0 4px 10px rgba(78, 115, 223, 0.2);
+}
+
+/* 설정 폼 */
+.settings-form {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    padding: 30px;
+    max-width: 700px;
+}
+
+.settings-form h4 {
+    font-size: 18px;
+    color: #2e384d;
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #edf2f7;
+    font-weight: 600;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #2e384d;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: all 0.3s;
+}
+
+.form-group input:focus {
+    border-color: #4e73df;
+    box-shadow: 0 0 0 3px rgba(78, 115, 223, 0.1);
+    outline: none;
+}
+
+.error-message {
+    color: #e74a3b;
+    margin-top: 5px;
+    font-size: 14px;
+}
+
+/* 반응형 스타일 */
+@media (max-width: 992px) {
+    .dashboard-wrapper {
+        flex-direction: column;
+    }
+    
+    .dashboard-sidebar {
+        width: 100%;
+        margin-bottom: 20px;
+    }
+    
+    .stats-container {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .sidebar-menu {
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+    
+    .sidebar-menu .menu-item {
+        width: auto;
+        border-bottom: none;
+        border-right: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .sidebar-menu .menu-item:last-child {
+        border-right: none;
+    }
+    
+    .sidebar-menu .menu-item a {
+        padding: 12px 15px;
+    }
+    
+    .sidebar-menu .menu-item a i {
+        margin-right: 8px;
+    }
+}
+
+@media (max-width: 768px) {
+    .dashboard-wrapper {
+        padding: 0 10px;
+    }
+    
+    .dashboard-sidebar {
+        border-radius: 8px;
+    }
+    
+    .admin-header-bar .container {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    
+    .admin-info {
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    .stats-container {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .tab-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+    
+    .table-container {
+        overflow-x: auto;
+    }
+    
+    .data-table {
+        min-width: 600px;
+    }
+    
+    .dashboard-content {
+        padding: 20px;
+    }
+    
+    .sidebar-menu .menu-item a {
+        font-size: 14px;
+        padding: 10px;
+    }
+    
+    .sidebar-menu .menu-item a i {
+        margin-right: 5px;
+    }
+}
+
+@media (max-width: 480px) {
+    .admin-header-bar {
+        padding: 12px 0;
+    }
+    
+    .admin-header-bar .container {
+        gap: 15px;
+    }
+    
+    .admin-title h2 {
+        font-size: 18px;
+    }
+    
+    .admin-info {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    
+    .admin-info span {
+        margin-right: 0;
+        margin-bottom: 5px;
+    }
+    
+    .logout-btn {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .sidebar-menu {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        padding: 10px;
+    }
+    
+    .sidebar-menu .menu-item {
+        flex-shrink: 0;
+    }
+    
+    .sidebar-menu .menu-item a {
+        white-space: nowrap;
+        padding: 10px 15px;
+    }
+    
+    .stat-card {
+        padding: 15px;
+    }
+    
+    .stat-info p {
+        font-size: 20px;
+    }
+    
+    .dashboard-content {
+        padding: 15px;
+    }
+    
+    .recent-activity,
+    .settings-form {
+        padding: 15px;
+    }
+    
+    .btn-primary {
+        padding: 8px 12px;
+        font-size: 13px;
+    }
+    
+    .search-filter input {
+        padding: 10px;
+    }
+} 

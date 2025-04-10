@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>관리자 대시보드 - 자격증 닷컴</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/admin.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo">
+                <h1><a href="index.html">와이제이평생교육 완벽가이드!</a></h1>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="index.html">HOME</a></li>
+                    <li><a href="blog.html">블로그</a></li>
+                    <li><a href="admin-dashboard.html" class="active">관리자</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <div class="admin-header-bar">
+        <div class="container">
+            <div class="admin-title">
+                <h2><i class="fas fa-tachometer-alt"></i> 관리자 대시보드</h2>
+            </div>
+            <div class="admin-info">
+                <span id="adminName"></span>
+                <button id="logoutBtn" class="logout-btn"><i class="fas fa-sign-out-alt"></i> 로그아웃</button>
+            </div>
+        </div>
+    </div>
+
+    <section class="dashboard-section">
+        <div class="container">
+            <div class="dashboard-wrapper">
+                <!-- 사이드바 메뉴 -->
+                <aside class="dashboard-sidebar">
+                    <ul class="sidebar-menu">
+                        <li class="menu-item menu-active"><a href="#" data-tab="overview"><i class="fas fa-home"></i> 대시보드 홈</a></li>
+                        <li class="menu-item"><a href="#" data-tab="posts"><i class="fas fa-newspaper"></i> 게시물 관리</a></li>
+                        <li class="menu-item"><a href="#" data-tab="users"><i class="fas fa-users"></i> 사용자 관리</a></li>
+                        <li class="menu-item"><a href="#" data-tab="settings"><i class="fas fa-cog"></i> 설정</a></li>
+                    </ul>
+                </aside>
+
+                <!-- 대시보드 콘텐츠 -->
+                <div class="dashboard-content">
+                    <!-- 개요 탭 -->
+                    <div id="overview" class="dashboard-tab active">
+                        <h3><i class="fas fa-chart-line"></i> 대시보드 개요</h3>
+                        <div class="stats-container">
+                            <div class="stat-card">
+                                <div class="stat-icon"><i class="fas fa-newspaper"></i></div>
+                                <div class="stat-info">
+                                    <h3>게시물</h3>
+                                    <p id="postCount">0</p>
+                                </div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-icon"><i class="fas fa-users"></i></div>
+                                <div class="stat-info">
+                                    <h3>사용자</h3>
+                                    <p id="userCount">0</p>
+                                </div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-icon"><i class="fas fa-eye"></i></div>
+                                <div class="stat-info">
+                                    <h3>총 조회수</h3>
+                                    <p id="viewCount">0</p>
+                                </div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-icon"><i class="fas fa-comments"></i></div>
+                                <div class="stat-info">
+                                    <h3>댓글</h3>
+                                    <p id="commentCount">0</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="recent-activity">
+                            <h3><i class="fas fa-history"></i> 최근 활동</h3>
+                            <div class="activity-container" id="recentActivity">
+                                <p class="no-activity">아직 활동 내역이 없습니다.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 게시물 관리 탭 -->
+                    <div id="posts" class="dashboard-tab">
+                        <div class="tab-header">
+                            <h3><i class="fas fa-newspaper"></i> 게시물 관리</h3>
+                            <a href="blog.html?new=true" class="btn-primary"><i class="fas fa-plus"></i> 새 게시물 작성</a>
+                        </div>
+
+                        <div class="search-filter">
+                            <input type="text" id="postSearch" placeholder="게시물 검색...">
+                        </div>
+
+                        <div class="table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>제목</th>
+                                        <th>작성일</th>
+                                        <th>조회수</th>
+                                        <th>관리</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="postsTableBody">
+                                    <!-- 동적으로 추가됨 -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- 사용자 관리 탭 -->
+                    <div id="users" class="dashboard-tab">
+                        <div class="tab-header">
+                            <h3><i class="fas fa-users"></i> 사용자 관리</h3>
+                            <button id="addUserBtn" class="btn-primary"><i class="fas fa-user-plus"></i> 새 관리자 추가</button>
+                        </div>
+
+                        <div class="search-filter">
+                            <input type="text" id="userSearch" placeholder="사용자 검색...">
+                        </div>
+
+                        <div class="table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>이름</th>
+                                        <th>이메일</th>
+                                        <th>역할</th>
+                                        <th>가입일</th>
+                                        <th>관리</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="usersTableBody">
+                                    <!-- 동적으로 추가됨 -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- 설정 탭 -->
+                    <div id="settings" class="dashboard-tab">
+                        <div class="tab-header">
+                            <h3><i class="fas fa-cog"></i> 설정</h3>
+                        </div>
+                        
+                        <div class="settings-form">
+                            <form id="profileSettingsForm">
+                                <h4>프로필 설정</h4>
+                                <div class="form-group">
+                                    <label for="settingName">이름</label>
+                                    <input type="text" id="settingName" placeholder="이름을 입력하세요">
+                                </div>
+                                <div class="form-group">
+                                    <label for="settingEmail">이메일</label>
+                                    <input type="email" id="settingEmail" placeholder="이메일을 입력하세요">
+                                </div>
+                                <div class="form-group">
+                                    <label for="currentPassword">현재 비밀번호</label>
+                                    <input type="password" id="currentPassword" placeholder="현재 비밀번호를 입력하세요">
+                                </div>
+                                <div class="form-group">
+                                    <label for="newPassword">새 비밀번호</label>
+                                    <input type="password" id="newPassword" placeholder="새 비밀번호를 입력하세요">
+                                </div>
+                                <div class="form-group">
+                                    <label for="confirmNewPassword">새 비밀번호 확인</label>
+                                    <input type="password" id="confirmNewPassword" placeholder="새 비밀번호를 다시 입력하세요">
+                                </div>
+                                <div id="profileError" class="error-message"></div>
+                                <button type="submit" class="btn-primary"><i class="fas fa-save"></i> 변경사항 저장</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <p>지금의 페이지는 와이제이평생교육원의 학위취득과 자격증 취득의 모든 것에 대한 안내페이지입니다.</p>
+            <div class="footer-links">
+                <a href="#"></a>
+            </div>
+            <p class="copyright">© 학위취득,자격증닷컴</p>
+        </div>
+    </footer>
+
+    <script src="js/dashboard.js"></script>
+</body>
+</html> 
