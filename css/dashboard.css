@@ -1124,4 +1124,16 @@ header .container {
     justify-content: center;
     align-items: center;
     text-align: center;
+}
+
+.post-title-link {
+    color: #495057;
+    text-decoration: none;
+    transition: color 0.2s;
+    font-weight: 500;
+}
+
+.post-title-link:hover {
+    color: #4e73df;
+    text-decoration: underline;
 } 

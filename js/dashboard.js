@@ -333,7 +333,9 @@ document.addEventListener('DOMContentLoaded', function() {
             
             row.innerHTML = `
                 <td>${shortId}</td>
-                <td class="post-title-cell" title="${post.title}">${post.title}</td>
+                <td class="post-title-cell" title="${post.title}">
+                    <a href="blog-detail.html?id=${post.id}" target="_blank" class="post-title-link">${post.title}</a>
+                </td>
                 <td>${date}</td>
                 <td>${views}</td>
                 <td class="actions-cell">
@@ -468,7 +470,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <i class="fas fa-file-alt"></i>
                 </div>
                 <div class="activity-content">
-                    <p>${post.title}</p>
+                    <p><a href="blog-detail.html?id=${post.id}" target="_blank" class="post-title-link">${post.title}</a></p>
                     <span class="activity-time">${formatDate(post.date)}</span>
                 </div>
             `;
