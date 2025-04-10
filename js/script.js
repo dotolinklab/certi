@@ -1,18 +1,20 @@
 // DOM이 로드된 후 실행
 document.addEventListener('DOMContentLoaded', function() {
     // 햄버거 메뉴 기능 구현
-    const hamburgerBtn = document.querySelector('.mobile-menu-button');
-    const menuNav = document.querySelector('.nav-menu');
+    const mobileMenuButton = document.querySelector('.mobile-menu-button');
+    const navMenu = document.querySelector('.nav-menu');
     
-    if (hamburgerBtn && menuNav) {
-        hamburgerBtn.addEventListener('click', function(e) {
+    if (mobileMenuButton && navMenu) {
+        // 메뉴 버튼 클릭 이벤트
+        mobileMenuButton.addEventListener('click', function(e) {
             e.stopPropagation(); // 이벤트 버블링 방지
-            menuNav.classList.toggle('active');
-            const isExpanded = menuNav.classList.contains('active');
+            navMenu.classList.toggle('active');
+            
+            // 아이콘 변경 및 접근성 속성 업데이트
+            const isExpanded = navMenu.classList.contains('active');
             this.setAttribute('aria-expanded', isExpanded);
             this.setAttribute('aria-label', isExpanded ? '메뉴 닫기' : '메뉴 열기');
             
-            // 아이콘 변경
             const icon = this.querySelector('i');
             if (isExpanded) {
                 icon.classList.remove('fa-bars');
@@ -24,17 +26,18 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         
         // 메뉴 내부 클릭 시 이벤트 전파 막기
-        menuNav.addEventListener('click', function(e) {
+        navMenu.addEventListener('click', function(e) {
             e.stopPropagation();
         });
         
         // 문서 어느 곳이든 클릭 시 메뉴 닫기
-        document.addEventListener('click', function() {
-            if (menuNav.classList.contains('active')) {
-                menuNav.classList.remove('active');
-                hamburgerBtn.setAttribute('aria-expanded', 'false');
-                hamburgerBtn.setAttribute('aria-label', '메뉴 열기');
-                const icon = hamburgerBtn.querySelector('i');
+        document.addEventListener('click', function(event) {
+            if (navMenu.classList.contains('active') && !navMenu.contains(event.target) && !mobileMenuButton.contains(event.target)) {
+                navMenu.classList.remove('active');
+                mobileMenuButton.setAttribute('aria-expanded', 'false');
+                mobileMenuButton.setAttribute('aria-label', '메뉴 열기');
+                
+                const icon = mobileMenuButton.querySelector('i');
                 icon.classList.remove('fa-times');
                 icon.classList.add('fa-bars');
             }
@@ -99,20 +102,5 @@ document.addEventListener('DOMContentLoaded', function() {
             // 클릭된 아이템에 active 클래스 추가
             this.classList.add('active');
         });
-    });
-
-    // 모바일 메뉴 토글
-    const menuButton = document.querySelector('.mobile-menu-button');
-    const navMenu = document.querySelector('.nav-menu');
-
-    menuButton.addEventListener('click', function() {
-        navMenu.classList.toggle('active');
-    });
-
-    // 메뉴 외부 클릭시 닫기
-    document.addEventListener('click', function(event) {
-        if (!navMenu.contains(event.target) && !menuButton.contains(event.target)) {
-            navMenu.classList.remove('active');
-        }
     });
 });
