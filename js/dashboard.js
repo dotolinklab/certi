@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // 관리자 데이터 표시
     if (adminName) {
-        adminName.textContent = currentAdmin.name || currentAdmin.id || "슈퍼관리자";
+        adminName.textContent = currentAdmin.name || currentAdmin.id;
     }
 
     // 모바일 환경인지 확인
@@ -196,6 +196,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 row.innerHTML = `
                     <td>${index + 1}</td>
                     <td>${post.title}</td>
+                    <td>${formatDate(post.date) || '날짜 없음'}</td>
+                    <td>${Math.floor(Math.random() * 100) + 1}</td>
                     <td>
                         <div class="table-actions">
                             <a href="blog.html?post=${post.id}" class="btn-view" title="보기"><i class="fas fa-eye"></i></a>
@@ -395,9 +397,6 @@ document.addEventListener('DOMContentLoaded', function() {
             // 역할 뱃지 클래스 설정
             let roleClass = '';
             switch(user.role) {
-                case '슈퍼관리자':
-                    roleClass = 'superadmin';
-                    break;
                 case '관리자':
                     roleClass = 'admin';
                     break;
@@ -408,11 +407,14 @@ document.addEventListener('DOMContentLoaded', function() {
             // 가입일 형식화
             const createdDate = user.created ? formatDate(user.created) : '정보 없음';
             
+            // 모든 사용자의 역할은 '관리자'로 표시
+            const userRole = '관리자';
+            
             row.innerHTML = `
                 <td>${index + 1}</td>
                 <td>${user.name || '이름 없음'}</td>
                 <td>${user.id}</td>
-                <td><span class="role-badge ${roleClass}">${user.role || '일반 사용자'}</span></td>
+                <td><span class="role-badge ${roleClass}">${userRole}</span></td>
                 <td>${createdDate}</td>
                 <td>
                     <div class="table-actions">
@@ -750,4 +752,59 @@ document.addEventListener('DOMContentLoaded', function() {
     `;
     
     document.head.appendChild(style);
+
+    // 햄버거 메뉴 기능 구현
+    const hamburgerBtn = document.querySelector('.mobile-menu-button');
+    const menuNav = document.querySelector('.nav-menu');
+    
+    if (hamburgerBtn && menuNav) {
+        hamburgerBtn.addEventListener('click', function(e) {
+            e.stopPropagation(); // 이벤트 버블링 방지
+            menuNav.classList.toggle('active');
+            const isExpanded = menuNav.classList.contains('active');
+            this.setAttribute('aria-expanded', isExpanded);
+            this.setAttribute('aria-label', isExpanded ? '메뉴 닫기' : '메뉴 열기');
+            
+            // 아이콘 변경
+            const icon = this.querySelector('i');
+            if (isExpanded) {
+                icon.classList.remove('fa-bars');
+                icon.classList.add('fa-times');
+            } else {
+                icon.classList.remove('fa-times');
+                icon.classList.add('fa-bars');
+            }
+        });
+        
+        // 메뉴 내부 클릭 시 이벤트 전파 막기
+        menuNav.addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
+        
+        // 문서 어느 곳이든 클릭 시 메뉴 닫기
+        document.addEventListener('click', function() {
+            if (menuNav.classList.contains('active')) {
+                menuNav.classList.remove('active');
+                hamburgerBtn.setAttribute('aria-expanded', 'false');
+                hamburgerBtn.setAttribute('aria-label', '메뉴 열기');
+                const icon = hamburgerBtn.querySelector('i');
+                icon.classList.remove('fa-times');
+                icon.classList.add('fa-bars');
+            }
+        });
+    }
+    
+    // 로그아웃 버튼 이벤트 연결
+    const adminLogoutLink = document.getElementById('adminLogoutLink');
+    if (adminLogoutLink) {
+        adminLogoutLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            if (confirm('정말 로그아웃하시겠습니까?')) {
+                localStorage.removeItem('admin_token');
+                localStorage.removeItem('admin_name');
+                localStorage.removeItem('admin_role');
+                window.location.href = 'index.html';
+            }
+        });
+    }
 }); 

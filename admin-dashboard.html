@@ -14,15 +14,22 @@
     <header>
         <div class="container">
             <div class="logo">
-                <h1><a href="index.html">자격증 닷컴</a></h1>
+                <a href="index.html">
+                    <img src="./images/logo.svg" alt="자격증 닷컴" class="logo-image">
+                    <span class="logo-text">자격증 닷컴</span>
+                </a>
             </div>
-            <nav>
-                <ul>
-                    <li><a href="index.html">홈</a></li>
-                    <li><a href="blog.html">블로그</a></li>
-                    <li><a href="admin-dashboard.html" class="active">관리자</a></li>
-                </ul>
-            </nav>
+            <div class="nav-wrapper">
+                <button class="mobile-menu-button" aria-label="메뉴 열기">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <nav class="nav-menu">
+                    <ul>
+                        <li><a href="blog.html">블로그</a></li>
+                        <li><a href="#" id="adminLogoutLink">로그아웃</a></li>
+                    </ul>
+                </nav>
+            </div>
         </div>
     </header>
 
@@ -32,25 +39,25 @@
                 <h2><i class="fas fa-tachometer-alt"></i> 관리자 대시보드</h2>
             </div>
             <div class="admin-info">
-                <span id="adminName"></span>
+                <span id="adminName">관리자</span>
                 <button id="logoutBtn" class="logout-btn"><i class="fas fa-sign-out-alt"></i> 로그아웃</button>
             </div>
         </div>
     </div>
 
+    <!-- 사이드바 메뉴 - 헤더바 바로 아래로 이동 -->
+    <aside class="dashboard-sidebar">
+        <ul class="sidebar-menu">
+            <li class="menu-item menu-active"><a href="#" data-tab="overview"><i class="fas fa-home"></i> <span>대시보드 홈</span></a></li>
+            <li class="menu-item"><a href="#" data-tab="posts"><i class="fas fa-newspaper"></i> <span>게시물 관리</span></a></li>
+            <li class="menu-item"><a href="#" data-tab="users"><i class="fas fa-users"></i> <span>사용자 관리</span></a></li>
+            <li class="menu-item"><a href="#" data-tab="settings"><i class="fas fa-cog"></i> <span>설정</span></a></li>
+        </ul>
+    </aside>
+
     <section class="dashboard-section">
         <div class="container">
             <div class="dashboard-wrapper">
-                <!-- 사이드바 메뉴 -->
-                <aside class="dashboard-sidebar">
-                    <ul class="sidebar-menu">
-                        <li class="menu-item menu-active"><a href="#" data-tab="overview"><i class="fas fa-home"></i> 대시보드 홈</a></li>
-                        <li class="menu-item"><a href="#" data-tab="posts"><i class="fas fa-newspaper"></i> 게시물 관리</a></li>
-                        <li class="menu-item"><a href="#" data-tab="users"><i class="fas fa-users"></i> 사용자 관리</a></li>
-                        <li class="menu-item"><a href="#" data-tab="settings"><i class="fas fa-cog"></i> 설정</a></li>
-                    </ul>
-                </aside>
-
                 <!-- 대시보드 콘텐츠 -->
                 <div class="dashboard-content">
                     <!-- 개요 탭 -->

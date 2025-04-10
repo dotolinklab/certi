@@ -18,17 +18,16 @@
                     <span class="logo-text">자격증 닷컴</span>
                 </a>
             </div>
-            <nav>
-                <ul>
-                    <li><a href="index.html">홈</a></li>
-                    <li><a href="blog.html" class="active">블로그</a></li>
-                    <li class="admin-only"><a href="admin-dashboard.html">관리자 대시보드</a></li>
-                </ul>
-            </nav>
-            <div class="admin-header-controls">
-                <div id="adminStatusHeader" class="admin-status-header admin-only"></div>
-                <button id="adminLoginBtn" class="btn btn-admin-login">관리자 모드</button>
-                <button id="adminLogoutBtn" class="btn btn-logout admin-only">로그아웃</button>
+            <div class="nav-wrapper">
+                <button class="mobile-menu-button" aria-label="메뉴 열기">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <nav class="nav-menu">
+                    <ul>
+                        <li><a href="admin-dashboard.html" id="adminLoginBtn">관리자 대시보드</a></li>
+                        <li class="admin-only"><a href="#" id="adminLogoutLink">로그아웃</a></li>
+                    </ul>
+                </nav>
             </div>
         </div>
     </header>
@@ -45,6 +44,7 @@
             <!-- 관리자 전용 버튼 영역 -->
             <div class="admin-controls admin-only">
                 <a href="blog.html?new=true" class="btn"><i class="fas fa-plus"></i> 새 글 작성</a>
+                <a href="#" id="createSampleBtn" class="btn"><i class="fas fa-magic"></i> 샘플 게시물 생성</a>
             </div>
 
             <!-- 글 작성 폼 (URL 파라미터로 접근, 관리자만 사용 가능) -->

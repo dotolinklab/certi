@@ -13,15 +13,21 @@
     <header>
         <div class="container">
             <div class="logo">
-                <h1><a href="index.html">자격증 닷컴</a></h1>
+                <a href="index.html">
+                    <img src="./images/logo.svg" alt="자격증 닷컴" class="logo-image">
+                    <span class="logo-text">자격증 닷컴</span>
+                </a>
             </div>
-            <nav>
-                <ul>
-                    <li><a href="index.html">홈</a></li>
-                    <li><a href="blog.html">블로그</a></li>
-                    <li><a href="admin-login.html" class="active">관리자</a></li>
-                </ul>
-            </nav>
+            <div class="nav-wrapper">
+                <button class="mobile-menu-button" aria-label="메뉴 열기">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <nav class="nav-menu">
+                    <ul>
+                        <li><a href="index.html">메인으로 돌아가기</a></li>
+                    </ul>
+                </nav>
+            </div>
         </div>
     </header>
 
@@ -93,7 +99,7 @@
                         <div class="form-group">
                             <label for="adminKey"><i class="fas fa-shield-alt"></i> 관리자 등록 키</label>
                             <input type="password" id="adminKey" placeholder="관리자 등록 키를 입력하세요" required>
-                            <small class="form-hint">* 관리자 등록 키는 슈퍼 관리자에게 문의하세요</small>
+                            <small class="form-hint">* 관리자 등록 키는 기존 관리자에게 문의하세요</small>
                         </div>
                         <div id="registerError" class="error-message"></div>
                         <button type="submit" class="btn btn-primary">회원가입 <i class="fas fa-user-plus"></i></button>

@@ -1,5 +1,46 @@
 // DOM이 로드된 후 실행
 document.addEventListener('DOMContentLoaded', function() {
+    // 햄버거 메뉴 기능 구현
+    const hamburgerBtn = document.querySelector('.mobile-menu-button');
+    const menuNav = document.querySelector('.nav-menu');
+    
+    if (hamburgerBtn && menuNav) {
+        hamburgerBtn.addEventListener('click', function(e) {
+            e.stopPropagation(); // 이벤트 버블링 방지
+            menuNav.classList.toggle('active');
+            const isExpanded = menuNav.classList.contains('active');
+            this.setAttribute('aria-expanded', isExpanded);
+            this.setAttribute('aria-label', isExpanded ? '메뉴 닫기' : '메뉴 열기');
+            
+            // 아이콘 변경
+            const icon = this.querySelector('i');
+            if (isExpanded) {
+                icon.classList.remove('fa-bars');
+                icon.classList.add('fa-times');
+            } else {
+                icon.classList.remove('fa-times');
+                icon.classList.add('fa-bars');
+            }
+        });
+        
+        // 메뉴 내부 클릭 시 이벤트 전파 막기
+        menuNav.addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
+        
+        // 문서 어느 곳이든 클릭 시 메뉴 닫기
+        document.addEventListener('click', function() {
+            if (menuNav.classList.contains('active')) {
+                menuNav.classList.remove('active');
+                hamburgerBtn.setAttribute('aria-expanded', 'false');
+                hamburgerBtn.setAttribute('aria-label', '메뉴 열기');
+                const icon = hamburgerBtn.querySelector('i');
+                icon.classList.remove('fa-times');
+                icon.classList.add('fa-bars');
+            }
+        });
+    }
+    
     // 기본 API 키 설정 (사용자가 제공한 키)
     if (!localStorage.getItem('openai_api_key')) {
         const apiKey = prompt('OpenAI API 키를 입력해주세요:');
@@ -418,17 +459,4 @@ document.addEventListener('DOMContentLoaded', function() {
             navMenu.classList.remove('active');
         }
     });
-
-    // 햄버거 메뉴 기능 구현
-    const mobileMenuButton = document.querySelector('.mobile-menu-button');
-    const navigation = document.querySelector('nav');
-    
-    if (mobileMenuButton && navigation) {
-        mobileMenuButton.addEventListener('click', function() {
-            navigation.classList.toggle('active');
-            const isExpanded = navigation.classList.contains('active');
-            this.setAttribute('aria-expanded', isExpanded);
-            this.setAttribute('aria-label', isExpanded ? '메뉴 닫기' : '메뉴 열기');
-        });
-    }
 });

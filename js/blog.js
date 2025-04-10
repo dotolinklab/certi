@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     // DOM 요소 참조
     const adminLoginBtn = document.getElementById('adminLoginBtn');
-    const adminLogoutBtn = document.getElementById('adminLogoutBtn');
+    const adminLogoutLink = document.getElementById('adminLogoutLink');
     const adminStatusHeader = document.getElementById('adminStatusHeader');
     const postFormContainer = document.getElementById('postFormContainer');
     const postForm = document.getElementById('postForm');
@@ -31,56 +31,91 @@ document.addEventListener('DOMContentLoaded', function() {
     let currentPostId = null;
     let isAdmin = false;
 
-    // 관리자 상태 확인
-    function checkAdminStatus() {
+    // 관리자 권한 및 메뉴 설정
+    function setupAdminInterface() {
+        // 대시보드와 동일한 방식으로 관리자 로그인 상태 확인
         const currentAdmin = JSON.parse(localStorage.getItem('currentAdmin'));
+        const adminElements = document.querySelectorAll('.admin-only');
         
-        if (!currentAdmin) {
-            isAdmin = false;
+        if (currentAdmin) {
+            // 관리자 로그인 상태
+            isAdmin = true;
+            adminElements.forEach(el => el.style.display = 'block');
             
-            // 관리자가 아니면서 관리자 전용 페이지에 접근하려는 경우 블로그 첫 페이지로 리디렉션
-            if (getUrlParameter('edit') || getUrlParameter('new')) {
-                window.location.href = 'blog.html';
-                return;
+            // 관리자 상태 표시
+            if (adminStatusHeader) {
+                adminStatusHeader.innerHTML = `<i class="fas fa-user-shield"></i> ${currentAdmin.name || currentAdmin.id} (관리자)`;
+                adminStatusHeader.style.display = 'block';
+            }
+            
+            // 기존 시스템과의 호환성을 위해 admin_token도 설정
+            if (!localStorage.getItem('admin_token')) {
+                localStorage.setItem('admin_token', 'true');
+                localStorage.setItem('admin_name', currentAdmin.name || currentAdmin.id);
             }
         } else {
-            isAdmin = true;
-        }
-        
-        updateAdminUI();
-    }
-
-    // 관리자 UI 업데이트
-    function updateAdminUI() {
-        const adminOnlyElements = document.querySelectorAll('.admin-only');
-        
-        if (isAdmin) {
-            adminLoginBtn.style.display = 'none';
-            const currentAdmin = JSON.parse(localStorage.getItem('currentAdmin'));
-            adminStatusHeader.innerHTML = `<i class="fas fa-user-shield"></i> ${currentAdmin.name}`;
-            adminOnlyElements.forEach(el => el.style.display = 'block');
-        } else {
-            adminLoginBtn.style.display = 'block';
-            adminStatusHeader.innerHTML = '';
-            adminOnlyElements.forEach(el => el.style.display = 'none');
+            // 이전 방식으로 확인 (역호환성 유지)
+            const adminToken = localStorage.getItem('admin_token');
+            const adminName = localStorage.getItem('admin_name');
             
-            // 관리자가 아닐 때는 수정/삭제 버튼 숨기기
-            const actionButtons = document.querySelectorAll('.post-actions');
-            actionButtons.forEach(btns => btns.style.display = 'none');
+            if (adminToken && adminName) {
+                // 관리자 로그인 상태
+                isAdmin = true;
+                adminElements.forEach(el => el.style.display = 'block');
+                
+                // 관리자 상태 표시
+                if (adminStatusHeader) {
+                    adminStatusHeader.innerHTML = `<i class="fas fa-user-shield"></i> ${adminName} (관리자)`;
+                    adminStatusHeader.style.display = 'block';
+                }
+                
+                // 새 시스템에 동기화
+                if (!localStorage.getItem('currentAdmin')) {
+                    const adminData = {
+                        id: adminName,
+                        name: adminName,
+                        role: 'admin'
+                    };
+                    localStorage.setItem('currentAdmin', JSON.stringify(adminData));
+                }
+            } else {
+                // 로그인되지 않은 상태
+                isAdmin = false;
+                adminElements.forEach(el => el.style.display = 'none');
+                if (adminStatusHeader) adminStatusHeader.style.display = 'none';
+            }
         }
     }
+    
+    // 페이지 로드 시 관리자 인터페이스 설정
+    setupAdminInterface();
 
     // 관리자 로그인 버튼 클릭 이벤트
-    adminLoginBtn.addEventListener('click', function() {
-        window.location.href = 'admin-login.html';
-    });
+    if (adminLoginBtn) {
+        adminLoginBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            if (isAdmin) {
+                window.location.href = 'admin-dashboard.html';
+            } else {
+                window.location.href = 'admin-login.html';
+            }
+        });
+    }
 
     // 관리자 로그아웃 버튼 클릭 이벤트
-    adminLogoutBtn.addEventListener('click', function() {
-        localStorage.removeItem('currentAdmin');
-        isAdmin = false;
-        updateAdminUI();
-    });
+    if (adminLogoutLink) {
+        adminLogoutLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            if (confirm('정말 로그아웃하시겠습니까?')) {
+                // 두 시스템 모두에서 로그아웃 처리
+                localStorage.removeItem('currentAdmin');
+                localStorage.removeItem('admin_token');
+                localStorage.removeItem('admin_name');
+                localStorage.removeItem('admin_role');
+                window.location.reload();
+            }
+        });
+    }
 
     // URL에서 매개변수 가져오기
     function getUrlParameter(name) {
@@ -104,12 +139,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // HTML 미리보기 업데이트
     function updateHtmlPreview() {
-        if (editorMode === 'html') {
+        if (editorMode === 'html' && previewContent) {
             try {
                 previewContent.innerHTML = postContent.value || '<p>HTML 미리보기가 여기에 표시됩니다.</p>';
-                
-                // 미리보기에서 HTML 태그가 작동하는지 확인
-                console.log('HTML 미리보기 업데이트:', postContent.value);
             } catch (error) {
                 console.error('HTML 미리보기 오류:', error);
                 previewContent.innerHTML = '<p style="color: red;">HTML 오류가 발생했습니다. 코드를 확인해주세요.</p>';
@@ -131,8 +163,6 @@ document.addEventListener('DOMContentLoaded', function() {
             htmlPreview.style.display = 'block';
             updateHtmlPreview();
         }
-        
-        console.log('에디터 모드 변경:', mode);
     }
 
     // 게시물 작성 폼 처리
@@ -258,25 +288,6 @@ document.addEventListener('DOMContentLoaded', function() {
         renderPosts();
         deleteModal.style.display = 'none';
     });
-
-    // 특정 제목의 게시물 삭제 함수
-    function deletePostByTitle(title) {
-        if (!isAdmin) {
-            alert('관리자만 게시물을 삭제할 수 있습니다.');
-            return;
-        }
-        
-        const postIndex = posts.findIndex(post => post.title === title);
-        if (postIndex === -1) {
-            alert('해당 제목의 게시물을 찾을 수 없습니다.');
-            return;
-        }
-        
-        posts.splice(postIndex, 1);
-        localStorage.setItem('blogPosts', JSON.stringify(posts));
-        renderPosts();
-        alert(`"${title}" 게시물이 삭제되었습니다.`);
-    }
 
     // 삭제 취소
     cancelDelete.addEventListener('click', function() {
@@ -536,91 +547,82 @@ document.addEventListener('DOMContentLoaded', function() {
         return null;
     }
 
-    // 기존 게시물 모두 삭제 (초기화) - 한 번만 실행
-    function clearAllPosts() {
-        // URL에 clear 파라미터가 있는 경우에만 실행
-        if (getUrlParameter('clear') === 'true' && isAdmin) {
-            localStorage.removeItem('blogPosts');
-            posts = [];
-            alert('모든 게시물이 삭제되었습니다.');
-            window.location.href = 'admin-dashboard.html';
-        }
+    // 샘플 게시물 생성
+    const createSampleBtn = document.getElementById('createSampleBtn');
+    if (createSampleBtn) {
+        createSampleBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            if (confirm('샘플 게시물을 생성하시겠습니까?')) {
+                createSamplePosts();
+            }
+        });
     }
 
-    // 테스트 게시물 생성 (처음 사용할 때 예제로 보여줄 게시물)
+    // 샘플 게시물 생성 함수
     function createSamplePosts() {
-        // 게시물이 없는 경우에만 샘플 게시물 생성
-        if (posts.length === 0 && getUrlParameter('sample') === 'true' && isAdmin) {
-            const samplePosts = [
-                {
-                    id: Date.now(),
-                    title: '학위취득 방법 총정리 - 독학학위제부터 학점은행제까지',
-                    content: '많은 분들이 학위 취득을 위해 다양한 방법을 찾고 계신데요. 이번 글에서는 독학학위제, 학점은행제, 사이버대학 등 다양한 학위 취득 방법을 비교 분석하고 각각의 장단점을 살펴보겠습니다.',
-                    date: '2025년 3월 23일',
-                    image: 'https://via.placeholder.com/200x200?text=학위취득',
-                    isHtml: false
-                },
-                {
-                    id: Date.now() - 1000,
-                    title: 'HTML 태그를 활용한 글쓰기 가이드',
-                    content: '<h3>HTML 태그의 기본</h3><p>이 글은 <strong>HTML 태그</strong>를 사용하여 작성되었습니다.</p><ul><li>글씨를 <em>기울이거나</em></li><li>텍스트를 <strong>굵게</strong> 표시할 수 있습니다.</li><li>또한 <a href="#">링크</a>도 넣을 수 있죠.</li></ul><p>이렇게 작성하면 더 <span style="color:blue;">다채로운</span> 글을 쓸 수 있습니다!</p>',
-                    date: '2025년 3월 22일',
-                    image: 'https://via.placeholder.com/200x200?text=HTML가이드',
-                    isHtml: true
-                },
-                {
-                    id: Date.now() - 2000,
-                    title: '사회복지사 자격증 2급 취득방법',
-                    content: '<h3>사회복지사 자격증의 중요성</h3><p>사회복지사 자격증은 사회복지 분야에서 일하기 위한 필수 자격증입니다.</p><h4>취득 방법</h4><ol><li><strong>학점은행제를 통한 취득</strong>: 사회복지 관련 교과목 이수</li><li><strong>대학에서 취득</strong>: 사회복지학과 졸업</li><li><strong>관련 실습</strong>: 160시간의 현장실습 완료</li></ol><p>자세한 사항은 <a href="#">한국사회복지사협회</a>에서 확인하세요.</p>',
-                    date: '2025년 3월 20일',
-                    image: 'https://via.placeholder.com/200x200?text=사회복지사',
-                    isHtml: true
-                },
-                {
-                    id: Date.now() - 3000,
-                    title: '지방세 세목별 과세증명서 발급 방법',
-                    content: '지방세는 우리의 일상생활과 지역사회 발전에 밀접한 관련이 있는 중요한 세금 제도입니다. 특히 지방세 세목별 과세증명서는 부동산 거래, 각종 행정 절차, 대출 신청 등 다양한 상황에서 필요한 중요한 문서입니다. 이 글에서는 지방세의 개념부터 국세와의 차이점, 세목별 과세증명서 발급 방법, 지방세 납부 및 조회 방법까지 자세히 알아보겠습니다.',
-                    date: '2025년 3월 24일',
-                    image: 'https://via.placeholder.com/200x200?text=지방세증명서',
-                    isHtml: false
-                },
-                {
-                    id: Date.now() - 4000,
-                    title: '폐업사실증명 발급방법 신청절차',
-                    content: '사업을 종료하고 폐업 절차를 진행한 후에는 폐업사실증명서가 필요한 경우가 많습니다. 폐업사실증명서는 사업자가 적법하게 폐업 신고를 했음을 증명하는 공식 문서로, 다양한 행정 절차나 금융 거래에서 요구됩니다. 이 글에서는 폐업사실증명서의 개념부터 발급 방법, 필요한 서류, 온라인 발급 절차, 수수료, 유효기간까지 상세히 알아보겠습니다.',
-                    date: '2025년 3월 22일',
-                    image: 'https://via.placeholder.com/200x200?text=폐업증명서',
-                    isHtml: false
-                },
-                {
-                    id: Date.now() - 5000,
-                    title: '건강보험 자격득실 확인서 발급방법',
-                    content: '건강보험 자격득실 확인서는 취업, 퇴직, 실업급여 신청, 대출 등 다양한 상황에서 필요한 중요한 서류입니다. 국민건강보험공단에서 발급하는 이 증명서는 개인의 건강보험 가입 이력을 증명하는 공식 문서로, 필요할 때 신속하게 발급받는 방법을 알아두면 여러모로 유용합니다. 이 글에서는 건강보험 자격득실 확인서의 의미부터 발급 방법, 활용처까지 상세히 알아보겠습니다.',
-                    date: '2025년 3월 21일',
-                    image: 'https://via.placeholder.com/200x200?text=건강보험증명서',
-                    isHtml: false
-                }
-            ];
-            
-            // 샘플 게시물 저장
-            posts = samplePosts;
-            localStorage.setItem('blogPosts', JSON.stringify(posts));
-            alert('샘플 게시물이 생성되었습니다.');
-            window.location.href = 'admin-dashboard.html';
+        if (!isAdmin) {
+            alert('관리자만 샘플 게시물을 생성할 수 있습니다.');
+            return;
         }
+        
+        const samplePosts = [
+            {
+                id: Date.now().toString(),
+                title: '학위취득 방법 총정리 - 독학학위제부터 학점은행제까지',
+                content: '많은 분들이 학위 취득을 위해 다양한 방법을 찾고 계신데요. 이번 글에서는 독학학위제, 학점은행제, 사이버대학 등 다양한 학위 취득 방법을 비교 분석하고 각각의 장단점을 살펴보겠습니다.',
+                date: new Date().toLocaleString('ko-KR'),
+                image: 'https://via.placeholder.com/200x200?text=학위취득',
+                isHtml: false
+            },
+            {
+                id: (Date.now() - 1000).toString(),
+                title: 'HTML 태그를 활용한 글쓰기 가이드',
+                content: '<h3>HTML 태그의 기본</h3><p>이 글은 <strong>HTML 태그</strong>를 사용하여 작성되었습니다.</p><ul><li>글씨를 <em>기울이거나</em></li><li>텍스트를 <strong>굵게</strong> 표시할 수 있습니다.</li><li>또한 <a href="#">링크</a>도 넣을 수 있죠.</li></ul><p>이렇게 작성하면 더 <span style="color:blue;">다채로운</span> 글을 쓸 수 있습니다!</p>',
+                date: new Date(Date.now() - 86400000).toLocaleString('ko-KR'), // 하루 전
+                image: 'https://via.placeholder.com/200x200?text=HTML가이드',
+                isHtml: true
+            },
+            {
+                id: (Date.now() - 2000).toString(),
+                title: '사회복지사 자격증 2급 취득방법',
+                content: '<h3>사회복지사 자격증의 중요성</h3><p>사회복지사 자격증은 사회복지 분야에서 일하기 위한 필수 자격증입니다.</p><h4>취득 방법</h4><ol><li><strong>학점은행제를 통한 취득</strong>: 사회복지 관련 교과목 이수</li><li><strong>대학에서 취득</strong>: 사회복지학과 졸업</li><li><strong>관련 실습</strong>: 160시간의 현장실습 완료</li></ol><p>자세한 사항은 <a href="#">한국사회복지사협회</a>에서 확인하세요.</p>',
+                date: new Date(Date.now() - 172800000).toLocaleString('ko-KR'), // 이틀 전
+                image: 'https://via.placeholder.com/200x200?text=사회복지사',
+                isHtml: true
+            },
+            {
+                id: (Date.now() - 3000).toString(),
+                title: '지방세 세목별 과세증명서 발급 방법',
+                content: '지방세는 우리의 일상생활과 지역사회 발전에 밀접한 관련이 있는 중요한 세금 제도입니다. 특히 지방세 세목별 과세증명서는 부동산 거래, 각종 행정 절차, 대출 신청 등 다양한 상황에서 필요한 중요한 문서입니다. 이 글에서는 지방세의 개념부터 국세와의 차이점, 세목별 과세증명서 발급 방법, 지방세 납부 및 조회 방법까지 자세히 알아보겠습니다.',
+                date: new Date(Date.now() - 259200000).toLocaleString('ko-KR'), // 삼일 전
+                image: 'https://via.placeholder.com/200x200?text=지방세증명서',
+                isHtml: false
+            },
+            {
+                id: (Date.now() - 4000).toString(),
+                title: '폐업사실증명 발급방법 신청절차',
+                content: '사업을 종료하고 폐업 절차를 진행한 후에는 폐업사실증명서가 필요한 경우가 많습니다. 폐업사실증명서는 사업자가 적법하게 폐업 신고를 했음을 증명하는 공식 문서로, 다양한 행정 절차나 금융 거래에서 요구됩니다. 이 글에서는 폐업사실증명서의 개념부터 발급 방법, 필요한 서류, 온라인 발급 절차, 수수료, 유효기간까지 상세히 알아보겠습니다.',
+                date: new Date(Date.now() - 345600000).toLocaleString('ko-KR'), // 사일 전
+                image: 'https://via.placeholder.com/200x200?text=폐업증명서',
+                isHtml: false
+            }
+        ];
+        
+        // 기존 게시물에 샘플 게시물 추가
+        posts = [...samplePosts, ...posts];
+        
+        // 로컬 스토리지에 저장
+        localStorage.setItem('blogPosts', JSON.stringify(posts));
+        
+        // 게시물 다시 렌더링
+        renderPosts();
+        
+        alert('샘플 게시물이 성공적으로 생성되었습니다.');
     }
 
     // 초기화 함수
     function init() {
-        checkAdminStatus();
-        
-        // "안녕하세요?" 게시물 삭제
-        const postToDelete = posts.find(post => post.title === "안녕하세요?");
-        if (postToDelete) {
-            posts = posts.filter(post => post.title !== "안녕하세요?");
-            localStorage.setItem('blogPosts', JSON.stringify(posts));
-            console.log("'안녕하세요?' 게시물이 삭제되었습니다.");
-        }
+        setupAdminInterface();
         
         const editMode = getUrlParameter('edit');
         const newMode = getUrlParameter('new');
@@ -637,49 +639,44 @@ document.addEventListener('DOMContentLoaded', function() {
     // 초기화
     init();
 
-    function displayPosts(posts, isSearchResult = false) {
-        const postsContainer = document.getElementById('postsContainer');
-        
-        // 컨테이너가 존재하지 않으면 함수 종료
-        if (!postsContainer) return;
-        
-        // 검색 결과일 경우 이전 결과 초기화
-        if (isSearchResult) {
-            postsContainer.innerHTML = '';
-        }
-        
-        // 표시할 게시물이 없는 경우
-        if (!posts || posts.length === 0) {
-            postsContainer.innerHTML = '<div class="no-posts">게시물이 없습니다.</div>';
-            return;
-        }
-        
-        // 각 게시물에 대해 HTML 생성
-        posts.forEach(post => {
-            const postElement = document.createElement('div');
-            postElement.className = 'post';
-            postElement.dataset.id = post.id;
+    // 햄버거 메뉴 기능 구현
+    const hamburgerBtn = document.querySelector('.mobile-menu-button');
+    const menuNav = document.querySelector('.nav-menu');
+    
+    if (hamburgerBtn && menuNav) {
+        hamburgerBtn.addEventListener('click', function(e) {
+            e.stopPropagation(); // 이벤트 버블링 방지
+            menuNav.classList.toggle('active');
+            const isExpanded = menuNav.classList.contains('active');
+            this.setAttribute('aria-expanded', isExpanded);
+            this.setAttribute('aria-label', isExpanded ? '메뉴 닫기' : '메뉴 열기');
             
-            const imageUrl = post.image || 'images/default-post.jpg';
-            
-            postElement.innerHTML = `
-                <div class="post-image">
-                    <a href="blog-detail.html?id=${post.id}">
-                        <img src="${imageUrl}" alt="${post.title}" onerror="this.src='images/default-post.jpg'">
-                    </a>
-                </div>
-                <div class="post-content">
-                    <h3><a href="blog-detail.html?id=${post.id}">${post.title}</a></h3>
-                    <p class="post-meta">
-                        <span class="post-date">${formatDate(post.date)}</span>
-                        <span class="post-views"><i class="fas fa-eye"></i> ${post.views || 0}</span>
-                    </p>
-                    <p class="post-excerpt">${truncateText(post.content, 100)}</p>
-                    <a href="blog-detail.html?id=${post.id}" class="read-more">더 읽기 <i class="fas fa-arrow-right"></i></a>
-                </div>
-            `;
-            
-            postsContainer.appendChild(postElement);
+            // 아이콘 변경
+            const icon = this.querySelector('i');
+            if (isExpanded) {
+                icon.classList.remove('fa-bars');
+                icon.classList.add('fa-times');
+            } else {
+                icon.classList.remove('fa-times');
+                icon.classList.add('fa-bars');
+            }
+        });
+        
+        // 메뉴 내부 클릭 시 이벤트 전파 막기
+        menuNav.addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
+        
+        // 문서 어느 곳이든 클릭 시 메뉴 닫기
+        document.addEventListener('click', function() {
+            if (menuNav.classList.contains('active')) {
+                menuNav.classList.remove('active');
+                hamburgerBtn.setAttribute('aria-expanded', 'false');
+                hamburgerBtn.setAttribute('aria-label', '메뉴 열기');
+                const icon = hamburgerBtn.querySelector('i');
+                icon.classList.remove('fa-times');
+                icon.classList.add('fa-bars');
+            }
         });
     }
 }); 

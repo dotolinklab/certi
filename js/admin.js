@@ -83,13 +83,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 localStorage.removeItem('rememberedAdmin');
             }
             
-            // 현재 로그인 정보 저장
+            // 현재 로그인 정보 저장 - 대시보드 시스템
             localStorage.setItem('currentAdmin', JSON.stringify({
                 id: user.id,
                 name: user.name,
                 email: user.email,
                 role: user.role
             }));
+            
+            // 블로그 시스템과의 호환성을 위한 저장
+            localStorage.setItem('admin_token', 'true');
+            localStorage.setItem('admin_name', user.name || user.id);
+            localStorage.setItem('admin_role', user.role || 'admin');
             
             // 관리자 대시보드로 리디렉션
             window.location.href = 'admin-dashboard.html';
@@ -170,15 +175,15 @@ document.addEventListener('DOMContentLoaded', function() {
     // 초기 관리자 계정 생성 (최초 한 번만 실행)
     function createInitialAdmin() {
         if (adminUsers.length === 0) {
-            const superAdmin = {
-                id: 'superadmin',
+            const defaultAdmin = {
+                id: 'admin',
                 password: 'admin123',
-                name: '슈퍼 관리자',
+                name: '기본 관리자',
                 email: 'admin@example.com',
-                role: 'superadmin',
+                role: 'admin',
                 createdAt: new Date().toISOString()
             };
-            adminUsers.push(superAdmin);
+            adminUsers.push(defaultAdmin);
             localStorage.setItem('adminUsers', JSON.stringify(adminUsers));
         }
     }
@@ -196,4 +201,45 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // 세션 확인 실행
     checkSession();
+
+    // 햄버거 메뉴 기능 구현
+    const hamburgerBtn = document.querySelector('.mobile-menu-button');
+    const menuNav = document.querySelector('.nav-menu');
+    
+    if (hamburgerBtn && menuNav) {
+        hamburgerBtn.addEventListener('click', function(e) {
+            e.stopPropagation(); // 이벤트 버블링 방지
+            menuNav.classList.toggle('active');
+            const isExpanded = menuNav.classList.contains('active');
+            this.setAttribute('aria-expanded', isExpanded);
+            this.setAttribute('aria-label', isExpanded ? '메뉴 닫기' : '메뉴 열기');
+            
+            // 아이콘 변경
+            const icon = this.querySelector('i');
+            if (isExpanded) {
+                icon.classList.remove('fa-bars');
+                icon.classList.add('fa-times');
+            } else {
+                icon.classList.remove('fa-times');
+                icon.classList.add('fa-bars');
+            }
+        });
+        
+        // 메뉴 내부 클릭 시 이벤트 전파 막기
+        menuNav.addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
+        
+        // 문서 어느 곳이든 클릭 시 메뉴 닫기
+        document.addEventListener('click', function() {
+            if (menuNav.classList.contains('active')) {
+                menuNav.classList.remove('active');
+                hamburgerBtn.setAttribute('aria-expanded', 'false');
+                hamburgerBtn.setAttribute('aria-label', '메뉴 열기');
+                const icon = hamburgerBtn.querySelector('i');
+                icon.classList.remove('fa-times');
+                icon.classList.add('fa-bars');
+            }
+        });
+    }
 }); 
