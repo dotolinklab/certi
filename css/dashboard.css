@@ -816,24 +816,49 @@ header .container {
     }
     
     .sidebar-menu {
-        flex-wrap: nowrap;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
         overflow-x: auto;
         padding: 10px;
+        white-space: nowrap;
     }
     
     .sidebar-menu .menu-item {
+        flex: 1 1 25%;
         flex-shrink: 0;
+        min-width: 70px;
+        margin: 0 2px;
     }
     
     .sidebar-menu .menu-item a {
-        white-space: nowrap;
-        padding: 10px 15px;
+        padding: 8px 5px;
+        min-height: 60px;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        font-size: 10px;
+    }
+    
+    .sidebar-menu .menu-item a i {
+        margin-bottom: 5px;
+        font-size: 16px;
     }
     
     .sidebar-menu .menu-item a span {
-        writing-mode: vertical-lr;
-        text-orientation: upright;
-        letter-spacing: -3px;
+        writing-mode: horizontal-tb;
+        text-orientation: mixed;
+        letter-spacing: normal;
+        font-size: 10px;
+        width: 100%;
+        text-align: center;
+    }
+    
+    .sidebar-menu .menu-item a span::after {
+        margin-top: 5px;
+        width: 20px;
+        height: 2px;
     }
     
     .stat-card {
