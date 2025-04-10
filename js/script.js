@@ -1,107 +1,75 @@
-// DOM이 로드된 후 실행
+// DOM이 완전히 로드된 후 실행
+// v1.6 - PC에서도 작동하는 햄버거 메뉴 추가
 document.addEventListener('DOMContentLoaded', function() {
     // 햄버거 메뉴 기능 구현
-    const menuButton = document.querySelector('.mobile-menu-button');
+    const mobileMenuButton = document.querySelector('.mobile-menu-button');
+    const navMenu = document.querySelector('.nav-menu');
     const mobileMenu = document.querySelector('.mobile-menu');
-    const overlay = document.querySelector('.mobile-menu-overlay');
+    const mobileMenuOverlay = document.querySelector('.mobile-menu-overlay');
     const closeBtn = document.querySelector('.mobile-close-btn');
     
-    if (menuButton && mobileMenu && overlay) {
-        menuButton.addEventListener('click', function() {
-            menuButton.classList.toggle('active');
-            mobileMenu.classList.toggle('active');
-            overlay.classList.toggle('active');
+    // 모바일 메뉴 기능
+    if (mobileMenuButton) {
+        // 햄버거 버튼 클릭 이벤트
+        mobileMenuButton.addEventListener('click', function() {
+            this.classList.toggle('active');
+            
+            // 모바일 환경에서는 모바일 메뉴를, PC 환경에서는 nav-menu를 토글
+            if (window.innerWidth <= 768) {
+                mobileMenu.classList.toggle('active');
+                mobileMenuOverlay.classList.toggle('active');
+            } else {
+                navMenu.classList.toggle('active');
+            }
+            
             document.body.classList.toggle('menu-open');
         });
         
-        // 오버레이 클릭 시 메뉴 닫기
-        overlay.addEventListener('click', function() {
-            closeMenu();
-        });
-        
-        // 닫기 버튼 클릭 시 메뉴 닫기
+        // 모바일 메뉴 닫기 버튼
         if (closeBtn) {
             closeBtn.addEventListener('click', function() {
-                closeMenu();
+                mobileMenu.classList.remove('active');
+                mobileMenuOverlay.classList.remove('active');
+                mobileMenuButton.classList.remove('active');
+                document.body.classList.remove('menu-open');
             });
         }
         
-        // 모바일 메뉴 내 링크 클릭 시 메뉴 닫기
-        const mobileMenuLinks = document.querySelectorAll('.mobile-menu-list a');
-        mobileMenuLinks.forEach(link => {
-            link.addEventListener('click', function() {
-                closeMenu();
+        // 모바일 메뉴 오버레이 클릭
+        if (mobileMenuOverlay) {
+            mobileMenuOverlay.addEventListener('click', function() {
+                mobileMenu.classList.remove('active');
+                mobileMenuOverlay.classList.remove('active');
+                mobileMenuButton.classList.remove('active');
+                document.body.classList.remove('menu-open');
             });
+        }
+        
+        // 창 크기가 변경될 때 메뉴 상태 리셋
+        window.addEventListener('resize', function() {
+            // 창 크기에 따라 적절한 메뉴 닫기
+            if (window.innerWidth > 768) {
+                mobileMenu.classList.remove('active');
+                mobileMenuOverlay.classList.remove('active');
+            } else {
+                navMenu.classList.remove('active');
+            }
+            
+            mobileMenuButton.classList.remove('active');
+            document.body.classList.remove('menu-open');
         });
         
-        // 메뉴 닫기 함수
-        function closeMenu() {
-            menuButton.classList.remove('active');
-            mobileMenu.classList.remove('active');
-            overlay.classList.remove('active');
-            document.body.classList.remove('menu-open');
-        }
-    }
-    
-    // 관리자 로그인 상태 확인
-    checkAdminLoginStatus();
-    
-    // 관리자 로그인 상태 확인 함수
-    function checkAdminLoginStatus() {
-        const adminLoginStatus = localStorage.getItem('adminLoggedIn');
-        const adminLoginBtn = document.getElementById('adminLoginBtn');
-        const mobileAdminBtn = document.getElementById('mobileAdminBtn');
-        const mobileLogoutBtn = document.getElementById('mobileLogoutBtn');
-        
-        if (adminLoginStatus === 'true') {
-            // 데스크톱 메뉴
-            if (adminLoginBtn) {
-                adminLoginBtn.textContent = '관리자 대시보드';
-                adminLoginBtn.href = 'admin-dashboard.html';
+        // PC 환경에서 메뉴 외부 클릭 시 닫기
+        document.addEventListener('click', function(e) {
+            if (window.innerWidth > 768) {
+                if (navMenu.classList.contains('active') && 
+                    !navMenu.contains(e.target) && 
+                    !mobileMenuButton.contains(e.target)) {
+                    navMenu.classList.remove('active');
+                    mobileMenuButton.classList.remove('active');
+                }
             }
-            
-            // 모바일 메뉴
-            if (mobileAdminBtn) {
-                mobileAdminBtn.textContent = '관리자 대시보드';
-                mobileAdminBtn.href = 'admin-dashboard.html';
-            }
-            
-            // 로그아웃 버튼 표시
-            if (mobileLogoutBtn) {
-                mobileLogoutBtn.style.display = 'flex';
-                mobileLogoutBtn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    logout();
-                });
-            }
-        } else {
-            // 관리자 로그인 상태가 아닌 경우
-            if (adminLoginBtn) {
-                adminLoginBtn.textContent = '관리자';
-                adminLoginBtn.href = 'admin-login.html';
-            }
-            
-            if (mobileAdminBtn) {
-                mobileAdminBtn.textContent = '관리자';
-                mobileAdminBtn.href = 'admin-login.html';
-            }
-            
-            if (mobileLogoutBtn) {
-                mobileLogoutBtn.style.display = 'none';
-            }
-        }
-    }
-    
-    // 로그아웃 함수
-    function logout() {
-        localStorage.removeItem('adminLoggedIn');
-        localStorage.removeItem('currentAdmin');
-        localStorage.removeItem('admin_token');
-        localStorage.removeItem('admin_name');
-        localStorage.removeItem('admin_role');
-        
-        alert('로그아웃되었습니다.');
-        location.reload();
+        });
     }
     
     // 카드에 호버 효과 추가
@@ -140,27 +108,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 // 임시 알림 메시지 표시
                 alert(`[${cardHeader}] ${cardTitle}\n해당 페이지는 준비 중입니다.\nURL을 지정해주세요.`);
             }
-        });
-    });
-    
-    // 네비게이션 아이템 클릭 효과
-    const navItems = document.querySelectorAll('nav ul li a');
-    navItems.forEach(item => {
-        // 이미 href가 있는 항목은 기본 동작 유지 (블로그 링크 등)
-        if (item.getAttribute('href') && item.getAttribute('href') !== '#') {
-            return;
-        }
-        
-        item.addEventListener('click', function(e) {
-            // #만 있거나 href가 없는 경우에만 기본 동작 방지
-            if (item.getAttribute('href') === '#') {
-                e.preventDefault();
-            }
-            
-            // 모든 아이템에서 active 클래스 제거
-            navItems.forEach(link => link.classList.remove('active'));
-            // 클릭된 아이템에 active 클래스 추가
-            this.classList.add('active');
         });
     });
 });

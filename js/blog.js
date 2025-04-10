@@ -8,13 +8,23 @@ document.addEventListener('DOMContentLoaded', function() {
     const cancelBtn = document.getElementById('cancelBtn');
     const blogPosts = document.getElementById('blogPosts');
     const postTemplate = document.getElementById('postTemplate');
-    const deleteModal = document.getElementById('deleteModal');
-    const confirmDelete = document.getElementById('confirmDelete');
-    const cancelDelete = document.getElementById('cancelDelete');
+    const pagination = document.getElementById('pagination');
     const postImage = document.getElementById('postImage');
     const imagePreview = document.getElementById('imagePreview');
     const postId = document.getElementById('postId');
     const submitPostBtn = document.getElementById('submitPostBtn');
+
+    // 페이지네이션 변수
+    const postsPerPage = 5; // 페이지당 게시물 수
+    let currentPage = 1; // 현재 페이지
+    let totalPages = 1; // 전체 페이지 수
+
+    // URL에서 페이지 매개변수 가져오기
+    const urlParams = new URLSearchParams(window.location.search);
+    const pageParam = urlParams.get('page');
+    if (pageParam && !isNaN(parseInt(pageParam))) {
+        currentPage = parseInt(pageParam);
+    }
 
     // HTML 편집기 관련 요소
     const plainTextBtn = document.getElementById('plainTextBtn');
@@ -60,7 +70,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             if (adminToken && adminName) {
                 // 관리자 로그인 상태
-                isAdmin = true;
+            isAdmin = true;
                 adminElements.forEach(el => el.style.display = 'block');
                 
                 // 관리자 상태 표시
@@ -78,7 +88,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     };
                     localStorage.setItem('currentAdmin', JSON.stringify(adminData));
                 }
-            } else {
+        } else {
                 // 로그인되지 않은 상태
                 isAdmin = false;
                 adminElements.forEach(el => el.style.display = 'none');
@@ -97,9 +107,9 @@ document.addEventListener('DOMContentLoaded', function() {
             if (isAdmin) {
                 window.location.href = 'admin-dashboard.html';
             } else {
-                window.location.href = 'admin-login.html';
+        window.location.href = 'admin-login.html';
             }
-        });
+    });
     }
 
     // 관리자 로그아웃 버튼 클릭 이벤트
@@ -108,7 +118,7 @@ document.addEventListener('DOMContentLoaded', function() {
             e.preventDefault();
             if (confirm('정말 로그아웃하시겠습니까?')) {
                 // 두 시스템 모두에서 로그아웃 처리
-                localStorage.removeItem('currentAdmin');
+        localStorage.removeItem('currentAdmin');
                 localStorage.removeItem('admin_token');
                 localStorage.removeItem('admin_name');
                 localStorage.removeItem('admin_role');
@@ -270,373 +280,257 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // 게시물 삭제 모달 표시
     function showDeleteModal(postId) {
-        // 관리자 권한 확인
-        if (!isAdmin) {
-            alert('관리자만 게시물을 삭제할 수 있습니다.');
-            return;
-        }
-        
+        currentPostId = postId;
         deleteModal.style.display = 'flex';
-        confirmDelete.dataset.postId = postId;
     }
 
-    // 게시물 삭제 확인
-    confirmDelete.addEventListener('click', function() {
-        const postId = this.dataset.postId;
-        posts = posts.filter(post => post.id !== postId);
-        localStorage.setItem('blogPosts', JSON.stringify(posts));
-        renderPosts();
-        deleteModal.style.display = 'none';
-    });
-
-    // 삭제 취소
-    cancelDelete.addEventListener('click', function() {
-        deleteModal.style.display = 'none';
-    });
-
-    // 폼 초기화
-    function resetForm() {
-        if (postForm) {
-            postForm.reset();
-            imagePreview.innerHTML = '';
-            currentPostId = null;
-            document.getElementById('postId').value = '';
-        }
-    }
-
-    // 게시물 렌더링
+    // 게시물 렌더링 함수
     function renderPosts() {
         blogPosts.innerHTML = '';
         
         if (posts.length === 0) {
-            blogPosts.innerHTML = '<p class="no-posts">아직 게시된 글이 없습니다.</p>';
+            blogPosts.innerHTML = '<div class="no-posts">아직 게시물이 없습니다.</div>';
+            renderPagination(0, 1);
             return;
         }
         
-        // 모바일 환경 확인
-        const isMobile = window.innerWidth <= 768;
+        // 총 페이지 수 계산
+        totalPages = Math.ceil(posts.length / postsPerPage);
         
-        posts.forEach(post => {
+        // 현재 페이지가 유효한지 확인, 아니면 첫 페이지로
+        if (currentPage < 1 || currentPage > totalPages) {
+            currentPage = 1;
+        }
+        
+        // 현재 페이지에 표시할 게시물 계산
+        const startIndex = (currentPage - 1) * postsPerPage;
+        const endIndex = Math.min(startIndex + postsPerPage, posts.length);
+        const currentPosts = posts.slice(startIndex, endIndex);
+        
+        currentPosts.forEach(post => {
+            // 템플릿 복제
             const postElement = document.importNode(postTemplate.content, true);
-            const postContainer = postElement.querySelector('.blog-post');
             
-            // 데이터 속성 설정
-            postContainer.setAttribute('data-id', post.id);
+            // 데이터 설정
+            const blogPostDiv = postElement.querySelector('.blog-post');
+            blogPostDiv.dataset.id = post.id;
             
-            // 제목 설정
+            // 게시물 제목 설정 및 클릭 이벤트 추가
             const postTitle = postElement.querySelector('.post-title');
             postTitle.textContent = post.title;
-            
-            // 날짜 설정
-            postElement.querySelector('.post-date').textContent = post.date;
-            
-            // 내용 설정
-            const postContentElement = postElement.querySelector('.post-content');
-            
-            // HTML 모드인 경우 innerHTML로 설정, 아니면 textContent로 설정
-            if (post.isHtml) {
-                // 내용 요약 (일부만 표시)
-                const tempDiv = document.createElement('div');
-                tempDiv.innerHTML = post.content;
-                const contentText = tempDiv.textContent || tempDiv.innerText;
-                const maxLength = isMobile ? 100 : 200; // 모바일에서는 더 짧게 표시
-                
-                if (contentText.length > maxLength) {
-                    // HTML 내용이 길면 요약해서 표시 (텍스트로만)
-                    postContentElement.textContent = contentText.substring(0, maxLength) + '...';
-                } else {
-                    // 짧은 HTML은 그대로 표시
-                    postContentElement.innerHTML = post.content;
-                }
-            } else {
-                // 일반 텍스트 - 기존 로직 사용
-                const contentText = post.content;
-                const maxLength = isMobile ? 100 : 200; // 모바일에서는 더 짧게 표시
-                const shortContent = contentText.length > maxLength
-                    ? contentText.substring(0, maxLength) + '...'
-                    : contentText;
-                
-                postContentElement.textContent = shortContent;
-            }
-            
-            // 자세히 보기 링크 설정
-            const readMoreLink = postElement.querySelector('.post-read-more a');
-            readMoreLink.href = `blog.html?post=${post.id}`;
-            
-            // 이미지 설정
-            const postImage = postElement.querySelector('.post-image');
-            if (post.image) {
-                postImage.src = post.image;
-                postImage.alt = post.title;
-                
-                // 이미지 클릭 시 상세 페이지로 이동
-                postImage.style.cursor = 'pointer';
-                postImage.addEventListener('click', function() {
-                    window.location.href = `blog.html?post=${post.id}`;
-                });
-            } else {
-                postImage.style.display = 'none';
-            }
-            
-            // 제목 클릭 시 상세 페이지로 이동
             postTitle.style.cursor = 'pointer';
             postTitle.addEventListener('click', function() {
-                window.location.href = `blog.html?post=${post.id}`;
+                navigateToPost(post.id);
             });
             
-            const postActions = postElement.querySelector('.post-actions');
+            postElement.querySelector('.post-date').textContent = post.date;
             
-            // 관리자가 아니면 수정/삭제 버튼 숨기기
-            if (!isAdmin) {
-                postActions.style.display = 'none';
+            // 이미지 설정 및 클릭 이벤트 추가
+            const postImageContainer = postElement.querySelector('.post-image-container');
+            const postImage = postElement.querySelector('.post-image');
+            
+            if (post.image) {
+                postImage.src = post.image;
+            } else {
+                postImage.src = 'images/default-post-image.jpg';
             }
             
-            const editButton = postElement.querySelector('.btn-edit');
-            const deleteButton = postElement.querySelector('.btn-delete');
-            
-            editButton.addEventListener('click', function(e) {
-                e.stopPropagation(); // 이벤트 버블링 방지
-                editPost(post.id);
+            postImageContainer.style.cursor = 'pointer';
+            postImageContainer.addEventListener('click', function() {
+                navigateToPost(post.id);
             });
             
-            deleteButton.addEventListener('click', function(e) {
-                e.stopPropagation(); // 이벤트 버블링 방지
-                showDeleteModal(post.id);
+            // 컨텐츠 설정 (HTML 또는 일반 텍스트)
+            const contentElement = postElement.querySelector('.post-content');
+            const fullContent = post.content;
+            
+            // 내용을 짧게 잘라서 표시 (최대 200자)
+            if (post.isHtml) {
+                // HTML 내용 처리
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = fullContent;
+                const textContent = tempDiv.textContent || tempDiv.innerText;
+                
+                if (textContent.length > 200) {
+                    const truncatedText = textContent.substring(0, 200) + '...';
+                    // XSS 방지를 위한 텍스트 노드로 추가
+                    contentElement.textContent = truncatedText;
+                } else {
+                    // 짧은 내용은 HTML 그대로 표시
+                    contentElement.innerHTML = fullContent;
+                }
+            } else {
+                // 일반 텍스트 처리
+                if (fullContent.length > 200) {
+                    contentElement.textContent = fullContent.substring(0, 200) + '...';
+                } else {
+                    contentElement.textContent = fullContent;
+                }
+            }
+            
+            // '자세히 보기' 링크 설정
+            const readMoreLink = postElement.querySelector('.post-read-more a');
+            readMoreLink.href = `blog-detail.html?id=${post.id}`;
+            
+            // 전체 카드 클릭 이벤트 (모바일에서 더 쉽게 클릭하도록)
+            blogPostDiv.addEventListener('click', function(e) {
+                // 클릭이 이미 처리된 자식 요소가 아닌 경우에만 처리
+                if (e.target !== postTitle && 
+                    !postImageContainer.contains(e.target) && 
+                    !readMoreLink.contains(e.target)) {
+                    navigateToPost(post.id);
+                }
             });
             
+            // blogPosts에 추가
             blogPosts.appendChild(postElement);
         });
-    }
-
-    // URL 파라미터에서 게시물 ID 가져오기
-    function getPostIdFromUrl() {
-        const editId = getUrlParameter('edit');
-        const viewId = getUrlParameter('post');
-        const isNewPost = getUrlParameter('new');
         
-        // 새 게시물 작성 모드인 경우
-        if (isNewPost === 'true' && isAdmin) {
-            postFormContainer.style.display = 'block';
-            resetForm();
-            submitPostBtn.textContent = '게시하기';
-            return null;
-        }
-        // 편집 모드인 경우
-        else if (editId) {
-            // 관리자 확인
-            if (!isAdmin) {
-                alert('관리자만 게시물을 수정할 수 있습니다.');
-                window.location.href = 'blog.html';
-                return null;
-            }
-            
-            // 게시물 폼 표시 및 데이터 로드
-            const post = posts.find(p => p.id === editId);
-            if (post && postFormContainer) {
-                postFormContainer.style.display = 'block';
-                document.getElementById('postTitle').value = post.title;
-                document.getElementById('postContent').value = post.content;
-                document.getElementById('postId').value = post.id;
-                
-                // 에디터 모드 설정
-                editorMode = post.isHtml ? 'html' : 'plain';
-                switchEditorMode(editorMode);
-                
-                // 이미지 미리보기 설정
-                if (post.image) {
-                    imagePreview.innerHTML = `<img src="${post.image}" alt="미리보기" style="max-width: 200px; max-height: 200px;">`;
-                }
-                
-                currentPostId = post.id;
-                submitPostBtn.textContent = '수정하기';
-            }
-            
-            return editId;
-        } 
-        // 조회 모드인 경우
-        else if (viewId) {
-            // 게시물 세부 정보 표시
-            const post = posts.find(p => p.id === viewId);
-            if (post) {
-                // 게시물 목록을 비우고 세부 정보 표시
-                blogPosts.innerHTML = '';
-                
-                // 상단 관리자 액션 버튼 추가 (관리자인 경우)
-                if (isAdmin) {
-                    // 관리자 버튼 추가
-                    const adminControlsArea = document.querySelector('.admin-controls');
-                    if (adminControlsArea) {
-                        // 기존 버튼 유지하기 위해 innerHTML 대신 추가
-                        const editBtn = document.createElement('a');
-                        editBtn.href = `blog.html?edit=${post.id}`;
-                        editBtn.className = 'btn btn-edit';
-                        editBtn.innerHTML = '<i class="fas fa-edit"></i> 이 글 수정하기';
-                        
-                        const deleteBtn = document.createElement('a');
-                        deleteBtn.href = '#';
-                        deleteBtn.className = 'btn btn-delete';
-                        deleteBtn.innerHTML = '<i class="fas fa-trash"></i> 이 글 삭제하기';
-                        deleteBtn.addEventListener('click', function(e) {
-                            e.preventDefault();
-                            showDeleteModal(post.id);
-                        });
-                        
-                        adminControlsArea.appendChild(editBtn);
-                        adminControlsArea.appendChild(deleteBtn);
-                    }
-                }
-                
-                // 세부 정보 UI 생성
-                const detailElement = document.createElement('div');
-                detailElement.className = 'blog-post-detail';
-                
-                // 뒤로가기 버튼
-                const backButton = document.createElement('button');
-                backButton.className = 'btn-back';
-                backButton.innerHTML = '<i class="fas fa-arrow-left"></i> 목록으로 돌아가기';
-                backButton.addEventListener('click', function() {
-                    window.location.href = 'blog.html';
-                });
-                
-                detailElement.appendChild(backButton);
-                
-                // 게시물 컨테이너 생성
-                const postContainer = document.createElement('div');
-                postContainer.className = 'post-detail-container';
-                
-                // 1. 제목 요소 생성 및 추가
-                const titleElement = document.createElement('h2');
-                titleElement.className = 'post-detail-title';
-                titleElement.textContent = post.title;
-                postContainer.appendChild(titleElement);
-                
-                // 2. 날짜 요소 생성 및 추가
-                const dateElement = document.createElement('div');
-                dateElement.className = 'post-detail-date';
-                dateElement.textContent = post.date;
-                postContainer.appendChild(dateElement);
-                
-                // 4. 이미지 추가 (있는 경우에만)
-                if (post.image) {
-                    const imageContainer = document.createElement('div');
-                    imageContainer.className = 'post-detail-image';
-                    imageContainer.innerHTML = `<img src="${post.image}" alt="${post.title}">`;
-                    postContainer.appendChild(imageContainer);
-                }
-                
-                // 5. 내용 요소 생성 및 추가
-                const contentElement = document.createElement('div');
-                contentElement.className = 'post-detail-content-text';
-                
-                if (post.isHtml) {
-                    contentElement.innerHTML = post.content;
-                } else {
-                    contentElement.textContent = post.content;
-                }
-                
-                postContainer.appendChild(contentElement);
-                
-                // 모든 요소를 상세 페이지 컨테이너에 추가
-                detailElement.appendChild(postContainer);
-                blogPosts.appendChild(detailElement);
-            }
-            
-            return viewId;
-        }
+        // 페이지네이션 렌더링
+        renderPagination(posts.length, totalPages);
+    }
+    
+    // 게시물 상세 페이지로 이동하는 함수
+    function navigateToPost(postId) {
+        window.location.href = `blog-detail.html?id=${postId}`;
+    }
+
+    // 페이지네이션 렌더링 함수
+    function renderPagination(totalItems, totalPages) {
+        if (!pagination) return;
         
-        return null;
-    }
-
-    // 샘플 게시물 생성
-    const createSampleBtn = document.getElementById('createSampleBtn');
-    if (createSampleBtn) {
-        createSampleBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            if (confirm('샘플 게시물을 생성하시겠습니까?')) {
-                createSamplePosts();
-            }
-        });
-    }
-
-    // 샘플 게시물 생성 함수
-    function createSamplePosts() {
-        if (!isAdmin) {
-            alert('관리자만 샘플 게시물을 생성할 수 있습니다.');
+        pagination.innerHTML = '';
+        
+        // 게시물이 없거나 1페이지만 있으면 페이지네이션 숨기기
+        if (totalItems <= postsPerPage) {
+            pagination.style.display = 'none';
             return;
         }
         
-        const samplePosts = [
-            {
-                id: Date.now().toString(),
-                title: '학위취득 방법 총정리 - 독학학위제부터 학점은행제까지',
-                content: '많은 분들이 학위 취득을 위해 다양한 방법을 찾고 계신데요. 이번 글에서는 독학학위제, 학점은행제, 사이버대학 등 다양한 학위 취득 방법을 비교 분석하고 각각의 장단점을 살펴보겠습니다.',
-                date: new Date().toLocaleString('ko-KR'),
-                image: 'https://via.placeholder.com/200x200?text=학위취득',
-                isHtml: false
-            },
-            {
-                id: (Date.now() - 1000).toString(),
-                title: 'HTML 태그를 활용한 글쓰기 가이드',
-                content: '<h3>HTML 태그의 기본</h3><p>이 글은 <strong>HTML 태그</strong>를 사용하여 작성되었습니다.</p><ul><li>글씨를 <em>기울이거나</em></li><li>텍스트를 <strong>굵게</strong> 표시할 수 있습니다.</li><li>또한 <a href="#">링크</a>도 넣을 수 있죠.</li></ul><p>이렇게 작성하면 더 <span style="color:blue;">다채로운</span> 글을 쓸 수 있습니다!</p>',
-                date: new Date(Date.now() - 86400000).toLocaleString('ko-KR'), // 하루 전
-                image: 'https://via.placeholder.com/200x200?text=HTML가이드',
-                isHtml: true
-            },
-            {
-                id: (Date.now() - 2000).toString(),
-                title: '사회복지사 자격증 2급 취득방법',
-                content: '<h3>사회복지사 자격증의 중요성</h3><p>사회복지사 자격증은 사회복지 분야에서 일하기 위한 필수 자격증입니다.</p><h4>취득 방법</h4><ol><li><strong>학점은행제를 통한 취득</strong>: 사회복지 관련 교과목 이수</li><li><strong>대학에서 취득</strong>: 사회복지학과 졸업</li><li><strong>관련 실습</strong>: 160시간의 현장실습 완료</li></ol><p>자세한 사항은 <a href="#">한국사회복지사협회</a>에서 확인하세요.</p>',
-                date: new Date(Date.now() - 172800000).toLocaleString('ko-KR'), // 이틀 전
-                image: 'https://via.placeholder.com/200x200?text=사회복지사',
-                isHtml: true
-            },
-            {
-                id: (Date.now() - 3000).toString(),
-                title: '지방세 세목별 과세증명서 발급 방법',
-                content: '지방세는 우리의 일상생활과 지역사회 발전에 밀접한 관련이 있는 중요한 세금 제도입니다. 특히 지방세 세목별 과세증명서는 부동산 거래, 각종 행정 절차, 대출 신청 등 다양한 상황에서 필요한 중요한 문서입니다. 이 글에서는 지방세의 개념부터 국세와의 차이점, 세목별 과세증명서 발급 방법, 지방세 납부 및 조회 방법까지 자세히 알아보겠습니다.',
-                date: new Date(Date.now() - 259200000).toLocaleString('ko-KR'), // 삼일 전
-                image: 'https://via.placeholder.com/200x200?text=지방세증명서',
-                isHtml: false
-            },
-            {
-                id: (Date.now() - 4000).toString(),
-                title: '폐업사실증명 발급방법 신청절차',
-                content: '사업을 종료하고 폐업 절차를 진행한 후에는 폐업사실증명서가 필요한 경우가 많습니다. 폐업사실증명서는 사업자가 적법하게 폐업 신고를 했음을 증명하는 공식 문서로, 다양한 행정 절차나 금융 거래에서 요구됩니다. 이 글에서는 폐업사실증명서의 개념부터 발급 방법, 필요한 서류, 온라인 발급 절차, 수수료, 유효기간까지 상세히 알아보겠습니다.',
-                date: new Date(Date.now() - 345600000).toLocaleString('ko-KR'), // 사일 전
-                image: 'https://via.placeholder.com/200x200?text=폐업증명서',
-                isHtml: false
+        pagination.style.display = 'flex';
+        
+        // 이전 페이지 버튼
+        const prevButton = document.createElement('a');
+        prevButton.href = `?page=${currentPage - 1}`;
+        prevButton.className = `pagination-item prev ${currentPage <= 1 ? 'disabled' : ''}`;
+        prevButton.innerHTML = '<i class="fas fa-chevron-left"></i>';
+        prevButton.addEventListener('click', function(e) {
+            if (currentPage > 1) {
+                e.preventDefault();
+                navigateToPage(currentPage - 1);
+            } else {
+                e.preventDefault(); // 첫 페이지면 이동 방지
             }
-        ];
+        });
+        pagination.appendChild(prevButton);
         
-        // 기존 게시물에 샘플 게시물 추가
-        posts = [...samplePosts, ...posts];
+        // 페이지 번호 생성
+        const maxVisiblePages = 5; // 한 번에 표시할 최대 페이지 수
+        let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+        let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
         
-        // 로컬 스토리지에 저장
-        localStorage.setItem('blogPosts', JSON.stringify(posts));
+        // 시작 페이지 조정
+        if (endPage - startPage + 1 < maxVisiblePages) {
+            startPage = Math.max(1, endPage - maxVisiblePages + 1);
+        }
+        
+        // 첫 페이지 링크 (필요한 경우)
+        if (startPage > 1) {
+            const firstPage = document.createElement('a');
+            firstPage.href = `?page=1`;
+            firstPage.className = 'pagination-item';
+            firstPage.textContent = '1';
+            firstPage.addEventListener('click', function(e) {
+                e.preventDefault();
+                navigateToPage(1);
+            });
+            pagination.appendChild(firstPage);
+            
+            // 줄임표 표시 (첫 페이지와 간격이 있는 경우)
+            if (startPage > 2) {
+                const ellipsis = document.createElement('span');
+                ellipsis.className = 'pagination-ellipsis';
+                ellipsis.textContent = '...';
+                pagination.appendChild(ellipsis);
+            }
+        }
+        
+        // 페이지 번호
+        for (let i = startPage; i <= endPage; i++) {
+            const pageLink = document.createElement('a');
+            pageLink.href = `?page=${i}`;
+            pageLink.className = `pagination-item ${i === currentPage ? 'active' : ''}`;
+            pageLink.textContent = i;
+            
+            pageLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                navigateToPage(i);
+            });
+            
+            pagination.appendChild(pageLink);
+        }
+        
+        // 마지막 페이지 링크 (필요한 경우)
+        if (endPage < totalPages) {
+            // 줄임표 표시 (마지막 페이지와 간격이 있는 경우)
+            if (endPage < totalPages - 1) {
+                const ellipsis = document.createElement('span');
+                ellipsis.className = 'pagination-ellipsis';
+                ellipsis.textContent = '...';
+                pagination.appendChild(ellipsis);
+            }
+            
+            const lastPage = document.createElement('a');
+            lastPage.href = `?page=${totalPages}`;
+            lastPage.className = 'pagination-item';
+            lastPage.textContent = totalPages;
+            lastPage.addEventListener('click', function(e) {
+                e.preventDefault();
+                navigateToPage(totalPages);
+            });
+            pagination.appendChild(lastPage);
+        }
+        
+        // 다음 페이지 버튼
+        const nextButton = document.createElement('a');
+        nextButton.href = `?page=${currentPage + 1}`;
+        nextButton.className = `pagination-item next ${currentPage >= totalPages ? 'disabled' : ''}`;
+        nextButton.innerHTML = '<i class="fas fa-chevron-right"></i>';
+        nextButton.addEventListener('click', function(e) {
+            if (currentPage < totalPages) {
+                e.preventDefault();
+                navigateToPage(currentPage + 1);
+            } else {
+                e.preventDefault(); // 마지막 페이지면 이동 방지
+            }
+        });
+        pagination.appendChild(nextButton);
+    }
+    
+    // 페이지 이동 함수
+    function navigateToPage(pageNumber) {
+        if (pageNumber < 1 || pageNumber > totalPages) return;
+        
+        currentPage = pageNumber;
+        
+        // URL 업데이트
+        const url = new URL(window.location);
+        url.searchParams.set('page', currentPage);
+        window.history.pushState({}, '', url);
         
         // 게시물 다시 렌더링
         renderPosts();
         
-        alert('샘플 게시물이 성공적으로 생성되었습니다.');
+        // 페이지 상단으로 스크롤
+        window.scrollTo(0, 0);
     }
 
     // 초기화 함수
     function init() {
-        setupAdminInterface();
-        
-        const editMode = getUrlParameter('edit');
-        const newMode = getUrlParameter('new');
-        const viewMode = getUrlParameter('post');
-        
-        // 수정 모드나 새 게시물 작성 모드가 아니고, 게시물 보기 모드도 아닌 경우에만 게시물 목록 표시
-        if (!editMode && !newMode && !viewMode) {
             renderPosts();
-        } else {
-            getPostIdFromUrl();
-        }
     }
 
-    // 초기화
+    // 페이지 초기화
     init();
 
     // 햄버거 메뉴 기능 구현

@@ -1,10 +1,3 @@
-body {
-    overflow-x: hidden;
-    position: relative;
-    width: 100%;
-    height: 100%;
-}
-
 /* 관리자 페이지 스타일 */
 .admin-section {
     padding: 60px 0;
@@ -14,8 +7,6 @@ body {
     align-items: center;
     justify-content: center;
     width: 100%;
-    overflow-x: hidden;
-    position: relative;
 }
 
 .container {
@@ -35,7 +26,6 @@ body {
     box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
     overflow: hidden;
     transition: all 0.3s ease;
-    position: relative;
 }
 
 .auth-tabs {
@@ -131,20 +121,23 @@ body {
     display: flex;
     align-items: center;
     justify-content: flex-start;
+    margin-left: 0;
+    margin-right: auto;
     text-align: left;
-    margin-bottom: 15px;
-    flex-wrap: wrap;
+    margin-bottom: 5px;
+    width: 100%;
 }
 
 .remember-me input {
     width: auto;
-    margin-right: 8px;
+    margin-right: 10px;
 }
 
 .remember-me label {
     margin-bottom: 0;
     font-weight: 400;
-    font-size: 14px;
+    white-space: nowrap;
+    text-align: left;
 }
 
 .login-row {
@@ -230,50 +223,24 @@ body {
 
 @media (max-width: 576px) {
     .admin-section {
-        padding: 20px 0;
-        align-items: flex-start;
+        padding: 30px 15px;
     }
     
     .auth-container {
-        max-width: 100%;
+        max-width: 95%;
         width: 95%;
-        border-radius: 0;
-        box-shadow: none;
-        margin: 0 auto;
-    }
-    
-    .container {
-        padding: 0;
     }
     
     .auth-form {
         padding: 15px;
     }
     
-    .form-group input {
-        padding: 10px;
-        font-size: 14px;
-    }
-    
-    .remember-me {
-        margin-bottom: 15px;
-    }
-    
-    .remember-me label {
-        font-size: 13px;
-    }
-    
-    .btn {
-        padding: 10px;
-        font-size: 15px;
-    }
-    
     .blog-post-detail {
-        padding: 15px;
+        padding: 20px;
     }
     
     .post-image-container {
-        height: 160px;
+        height: 180px;
     }
 }
 

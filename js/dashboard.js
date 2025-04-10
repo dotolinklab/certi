@@ -22,6 +22,66 @@ document.addEventListener('DOMContentLoaded', function() {
     const postSearch = document.getElementById('postSearch');
     const userSearch = document.getElementById('userSearch');
     const addUserBtn = document.getElementById('addUserBtn');
+    const adminLogoutLink = document.getElementById('adminLogoutLink');
+    const mobileAdminLogoutLink = document.getElementById('mobileAdminLogoutLink');
+
+    // 햄버거 메뉴 관련 요소
+    const mobileMenuButton = document.querySelector('.mobile-menu-button');
+    const mobileMenu = document.querySelector('.mobile-menu');
+    const mobileMenuOverlay = document.querySelector('.mobile-menu-overlay');
+    const mobileCloseBtn = document.querySelector('.mobile-close-btn');
+    const navMenu = document.querySelector('.nav-menu');
+
+    // 햄버거 메뉴 기능 구현
+    if (mobileMenuButton) {
+        mobileMenuButton.addEventListener('click', function() {
+            this.classList.toggle('active');
+            
+            // 모바일 환경에서는 모바일 메뉴를, PC 환경에서는 nav-menu를 토글
+            if (window.innerWidth <= 768) {
+                mobileMenu.classList.toggle('active');
+                mobileMenuOverlay.classList.toggle('active');
+            } else {
+                navMenu.classList.toggle('active');
+            }
+            
+            document.body.classList.toggle('menu-open');
+        });
+        
+        // 모바일 메뉴 닫기 버튼
+        if (mobileCloseBtn) {
+            mobileCloseBtn.addEventListener('click', function() {
+                mobileMenu.classList.remove('active');
+                mobileMenuOverlay.classList.remove('active');
+                mobileMenuButton.classList.remove('active');
+                document.body.classList.remove('menu-open');
+            });
+        }
+        
+        // 모바일 메뉴 오버레이 클릭
+        if (mobileMenuOverlay) {
+            mobileMenuOverlay.addEventListener('click', function() {
+                mobileMenu.classList.remove('active');
+                mobileMenuOverlay.classList.remove('active');
+                mobileMenuButton.classList.remove('active');
+                document.body.classList.remove('menu-open');
+            });
+        }
+        
+        // 창 크기가 변경될 때 메뉴 상태 리셋
+        window.addEventListener('resize', function() {
+            // 창 크기에 따라 적절한 메뉴 닫기
+            if (window.innerWidth > 768) {
+                mobileMenu.classList.remove('active');
+                mobileMenuOverlay.classList.remove('active');
+            } else {
+                navMenu.classList.remove('active');
+            }
+            
+            mobileMenuButton.classList.remove('active');
+            document.body.classList.remove('menu-open');
+        });
+    }
 
     // 관리자 데이터 표시
     if (adminName) {
@@ -33,6 +93,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // 탭 전환 기능
     const menuItems = document.querySelectorAll('.sidebar-menu .menu-item a');
+    const mobileMenuItems = document.querySelectorAll('.mobile-menu-list .menu-item a');
     const tabs = document.querySelectorAll('.dashboard-tab');
 
     // 탭 변경 함수
@@ -46,13 +107,37 @@ document.addEventListener('DOMContentLoaded', function() {
         menuItems.forEach(item => {
             item.parentElement.classList.remove('menu-active');
         });
+        
+        // 모바일 메뉴 아이템 비활성화
+        mobileMenuItems.forEach(item => {
+            item.parentElement.classList.remove('menu-active');
+        });
 
         // 선택한 탭 활성화
         const selectedTab = document.getElementById(tabId);
-        selectedTab.classList.add('active');
+        if (selectedTab) {
+            selectedTab.classList.add('active');
 
-        // 선택한 메뉴 활성화
-        document.querySelector(`[data-tab="${tabId}"]`).parentElement.classList.add('menu-active');
+            // 선택한 메뉴 활성화
+            const menuItem = document.querySelector(`[data-tab="${tabId}"]`);
+            if (menuItem) {
+                menuItem.parentElement.classList.add('menu-active');
+            }
+            
+            // 선택한 모바일 메뉴 활성화
+            const mobileMenuItem = document.querySelector(`.mobile-menu-list [data-tab="${tabId}"]`);
+            if (mobileMenuItem) {
+                mobileMenuItem.parentElement.classList.add('menu-active');
+            }
+        }
+        
+        // 모바일 메뉴 닫기
+        if (mobileMenu && mobileMenu.classList.contains('active')) {
+            mobileMenu.classList.remove('active');
+            mobileMenuOverlay.classList.remove('active');
+            mobileMenuButton.classList.remove('active');
+            document.body.classList.remove('menu-open');
+        }
         
         // 탭이 변경될 때 데이터 새로고침
         if (tabId === 'posts') {
@@ -77,17 +162,64 @@ document.addEventListener('DOMContentLoaded', function() {
             changeTab(tabId);
         });
     });
+    
+    // 모바일 메뉴 클릭 이벤트
+    mobileMenuItems.forEach(item => {
+        item.addEventListener('click', function(e) {
+            e.preventDefault();
+            const tabId = this.getAttribute('data-tab');
+            changeTab(tabId);
+        });
+    });
 
-    // 초기 탭 설정 (overview 탭으로 시작)
-    changeTab('overview');
+    // URL 매개변수 확인 (초기 탭 설정 이전에 확인)
+    const urlParams = new URLSearchParams(window.location.search);
+    const newPost = urlParams.get('newpost');
+    const editPostId = urlParams.get('edit');
+
+    // 초기 탭 설정
+    if (newPost === 'true' || editPostId) {
+        // 새 게시물 작성 또는 수정 모드인 경우 posts 탭으로 이동
+        changeTab('posts');
+        // 게시물 작성 폼 표시
+        setTimeout(() => {
+            showPostForm(editPostId);
+        }, 100);
+    } else {
+        // 기본값은 overview 탭
+        changeTab('overview');
+    }
 
     // 로그아웃 버튼 이벤트
     logoutBtn.addEventListener('click', function() {
+        handleLogout();
+    });
+    
+    // 관리자 로그아웃 링크 이벤트
+    if (adminLogoutLink) {
+        adminLogoutLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            handleLogout();
+        });
+    }
+    
+    // 모바일 관리자 로그아웃 링크 이벤트
+    if (mobileAdminLogoutLink) {
+        mobileAdminLogoutLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            handleLogout();
+        });
+    }
+    
+    // 로그아웃 공통 처리 함수
+    function handleLogout() {
         if (confirm('정말 로그아웃하시겠습니까?')) {
             localStorage.removeItem('currentAdmin');
+            localStorage.removeItem('admin_token');
+            localStorage.removeItem('admin_name');
             window.location.href = 'admin-login.html';
         }
-    });
+    }
 
     // 데이터 로드 및 표시 함수
     function loadDashboardData() {
@@ -176,64 +308,67 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // 게시물 목록 렌더링
     function renderPosts(posts) {
-        if (!postsTableBody) return;
-        
         postsTableBody.innerHTML = '';
         
-        if (posts.length === 0) {
-            const noPostsRow = document.createElement('tr');
-            noPostsRow.innerHTML = `<td colspan="5" class="no-data">등록된 게시물이 없습니다.</td>`;
-            postsTableBody.appendChild(noPostsRow);
+        if (!posts || posts.length === 0) {
+            // 게시물이 없을 때 메시지 표시
+            const emptyRow = document.createElement('tr');
+            emptyRow.innerHTML = `<td colspan="5" class="empty-table">등록된 게시물이 없습니다.</td>`;
+            postsTableBody.appendChild(emptyRow);
             return;
         }
         
-        // 게시물 목록 생성
+        // 게시물 목록 렌더링
         posts.forEach((post, index) => {
             const row = document.createElement('tr');
             
-            // 모바일 환경에서는 간소화된 정보만 표시
-            if (isMobile) {
-                row.innerHTML = `
-                    <td>${index + 1}</td>
-                    <td>${post.title}</td>
-                    <td>${formatDate(post.date) || '날짜 없음'}</td>
-                    <td>${Math.floor(Math.random() * 100) + 1}</td>
-                    <td>
-                        <div class="table-actions">
-                            <a href="blog.html?post=${post.id}" class="btn-view" title="보기"><i class="fas fa-eye"></i></a>
-                            <a href="blog.html?edit=${post.id}" class="btn-edit" title="수정"><i class="fas fa-edit"></i></a>
-                            <button class="btn-delete" data-id="${post.id}" title="삭제"><i class="fas fa-trash"></i></button>
-                        </div>
-                    </td>
-                `;
-            } else {
-                // 조회수는 랜덤 수치로 표시 (임시)
-                const randomViews = Math.floor(Math.random() * 100) + 1;
-                row.innerHTML = `
-                    <td>${index + 1}</td>
-                    <td>${post.title}</td>
-                    <td>${formatDate(post.date)}</td>
-                    <td>${randomViews}</td>
-                    <td>
-                        <div class="table-actions">
-                            <a href="blog.html?post=${post.id}" class="btn-view" title="보기"><i class="fas fa-eye"></i></a>
-                            <a href="blog.html?edit=${post.id}" class="btn-edit" title="수정"><i class="fas fa-edit"></i></a>
-                            <button class="btn-delete" data-id="${post.id}" title="삭제"><i class="fas fa-trash"></i></button>
-                        </div>
-                    </td>
-                `;
-            }
+            // 간단한 ID 생성 (실제 ID는 내부적으로 유지)
+            const shortId = post.id.substring(post.id.length - 6);
             
-            // 삭제 버튼 이벤트
-            const deleteBtn = row.querySelector('.btn-delete');
-            deleteBtn.addEventListener('click', function() {
+            // 날짜 형식화
+            const date = formatDate(post.date);
+            
+            // 실제 조회 수 데이터가 없다면 임시로 랜덤 수 표시
+            const views = post.views || Math.floor(Math.random() * 100) + 1;
+            
+            row.innerHTML = `
+                <td>${shortId}</td>
+                <td class="post-title-cell" title="${post.title}">${post.title}</td>
+                <td>${date}</td>
+                <td>${views}</td>
+                <td class="actions-cell">
+                    <button class="btn-icon edit-btn" data-id="${post.id}" title="게시물 수정">
+                        <i class="fas fa-pen-fancy"></i>
+                    </button>
+                    <button class="btn-icon delete-btn" data-id="${post.id}" title="게시물 삭제">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                </td>
+            `;
+            
+            postsTableBody.appendChild(row);
+        });
+        
+        // 수정 버튼 이벤트 리스너
+        const editButtons = postsTableBody.querySelectorAll('.edit-btn');
+        editButtons.forEach(button => {
+            button.addEventListener('click', function() {
                 const postId = this.getAttribute('data-id');
-                if (confirm('정말로 이 게시물을 삭제하시겠습니까?')) {
+                // URL 매개변수를 변경하여 수정 모드 활성화
+                history.pushState({}, '', `admin-dashboard.html?edit=${postId}`);
+                showPostForm(postId);
+            });
+        });
+        
+        // 삭제 버튼 이벤트 리스너
+        const deleteButtons = postsTableBody.querySelectorAll('.delete-btn');
+        deleteButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const postId = this.getAttribute('data-id');
+                if (confirm('이 게시물을 정말 삭제하시겠습니까?')) {
                     deletePost(postId);
                 }
             });
-            
-            postsTableBody.appendChild(row);
         });
     }
 
@@ -243,12 +378,15 @@ document.addEventListener('DOMContentLoaded', function() {
             const searchTerm = this.value.toLowerCase();
             const posts = JSON.parse(localStorage.getItem('blogPosts')) || [];
             
-            const filteredPosts = posts.filter(post => {
-                return post.title.toLowerCase().includes(searchTerm) || 
-                       post.content.toLowerCase().includes(searchTerm);
-            });
-            
-            renderPosts(filteredPosts);
+            if (searchTerm.length > 0) {
+                const filteredPosts = posts.filter(post => 
+                    post.title.toLowerCase().includes(searchTerm) || 
+                    post.content.toLowerCase().includes(searchTerm)
+                );
+                renderPosts(filteredPosts);
+            } else {
+                renderPosts(posts);
+            }
         });
     }
 
@@ -367,6 +505,22 @@ document.addEventListener('DOMContentLoaded', function() {
     function loadPostsData() {
         const posts = JSON.parse(localStorage.getItem('blogPosts')) || [];
         renderPosts(posts);
+        
+        // 게시물 검색 기능
+        if (postSearch) {
+            postSearch.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                if (searchTerm.length > 0) {
+                    const filteredPosts = posts.filter(post => 
+                        post.title.toLowerCase().includes(searchTerm) || 
+                        post.content.toLowerCase().includes(searchTerm)
+                    );
+                    renderPosts(filteredPosts);
+                } else {
+                    renderPosts(posts);
+                }
+            });
+        }
     }
     
     // 사용자 데이터 로드
@@ -418,10 +572,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 <td>${createdDate}</td>
                 <td>
                     <div class="table-actions">
-                        <button class="btn-edit" data-id="${user.id}" title="수정"><i class="fas fa-edit"></i></button>
-                        <button class="btn-delete ${user.id === currentAdminId ? 'disabled' : ''}" 
+                        <button class="btn-edit" data-id="${user.id}" title="수정"><i class="fas fa-pen-fancy"></i></button>
+                        <button class="btn-delete ${user.id === currentAdminId ? 'disabled' : ''}"
                             data-id="${user.id}" title="삭제" ${user.id === currentAdminId ? 'disabled' : ''}>
-                            <i class="fas fa-trash"></i>
+                            <i class="fas fa-trash-alt"></i>
                         </button>
                     </div>
                 </td>
@@ -753,55 +907,278 @@ document.addEventListener('DOMContentLoaded', function() {
     
     document.head.appendChild(style);
 
-    // 햄버거 메뉴 기능 구현
-    const mobileMenuButton = document.querySelector('.mobile-menu-button');
-    const mobileMenu = document.querySelector('.mobile-menu');
-    const body = document.body;
-    
-    if (mobileMenuButton && mobileMenu) {
-        mobileMenuButton.addEventListener('click', function() {
-            mobileMenuButton.classList.toggle('active');
-            mobileMenu.classList.toggle('active');
-            body.classList.toggle('menu-open');
+    // 게시물 작성 폼 표시 함수
+    function showPostForm(postId = null) {
+        // 기존 게시물 목록 숨기기
+        const postsTableContainer = document.querySelector('#posts .table-container');
+        const searchFilter = document.querySelector('#posts .search-filter');
+        
+        if (postsTableContainer) {
+            postsTableContainer.style.display = 'none';
+        }
+        
+        if (searchFilter) {
+            searchFilter.style.display = 'none';
+        }
+        
+        // 이미 폼이 있는지 확인
+        let postFormContainer = document.querySelector('.post-form-container');
+        
+        if (!postFormContainer) {
+            // 폼 컨테이너 생성
+            postFormContainer = document.createElement('div');
+            postFormContainer.className = 'post-form-container';
             
-            // 오버레이 생성 및 활성화
-            let overlay = document.querySelector('.mobile-menu-overlay');
-            if (!overlay) {
-                overlay = document.createElement('div');
-                overlay.className = 'mobile-menu-overlay';
-                document.body.appendChild(overlay);
-            }
-            overlay.classList.toggle('active');
+            // 폼 HTML 생성
+            postFormContainer.innerHTML = `
+                <h3>${postId ? '게시물 수정' : '새 게시물 작성'}</h3>
+                <form id="postForm" class="dashboard-form">
+                    <input type="hidden" id="postId" value="${postId || ''}">
+                    
+                    <div class="form-group">
+                        <label for="postTitle">제목</label>
+                        <input type="text" id="postTitle" placeholder="게시물 제목을 입력하세요" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="postContent">내용</label>
+                        <div class="editor-mode-selector">
+                            <button type="button" id="plainTextBtn" class="editor-mode-btn active">일반 텍스트</button>
+                            <button type="button" id="htmlEditorBtn" class="editor-mode-btn">HTML 에디터</button>
+                        </div>
+                        <textarea id="postContent" rows="10" placeholder="게시물 내용을 입력하세요" required></textarea>
+                        
+                        <div id="htmlPreview" class="html-preview" style="display: none;">
+                            <h4>HTML 미리보기</h4>
+                            <div id="previewContent" class="preview-content"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="postImage">이미지</label>
+                        <input type="file" id="postImage" accept="image/*">
+                        <div id="imagePreview" class="image-preview"></div>
+                    </div>
+                    
+                    <div class="form-buttons">
+                        <button type="button" id="cancelBtn" class="btn-secondary">취소</button>
+                        <button type="submit" id="submitBtn" class="btn-primary">
+                            ${postId ? '게시물 수정' : '게시물 등록'}
+                        </button>
+                    </div>
+                </form>
+            `;
             
-            // 오버레이 클릭 시 메뉴 닫기
-            overlay.addEventListener('click', function() {
-                mobileMenuButton.classList.remove('active');
-                mobileMenu.classList.remove('active');
-                overlay.classList.remove('active');
-                body.classList.remove('menu-open');
-            });
+            // 폼을 posts 탭에 추가
+            document.getElementById('posts').appendChild(postFormContainer);
+            
+            // 폼 이벤트 리스너 설정
+            setupPostFormEvents(postId);
+        }
+        
+        // 게시물 수정인 경우 기존 데이터 로드
+        if (postId) {
+            loadPostData(postId);
+        }
+    }
+
+    // 게시물 폼 이벤트 설정
+    function setupPostFormEvents(postId) {
+        const postForm = document.getElementById('postForm');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const plainTextBtn = document.getElementById('plainTextBtn');
+        const htmlEditorBtn = document.getElementById('htmlEditorBtn');
+        const postContent = document.getElementById('postContent');
+        const htmlPreview = document.getElementById('htmlPreview');
+        const previewContent = document.getElementById('previewContent');
+        const postImage = document.getElementById('postImage');
+        const imagePreview = document.getElementById('imagePreview');
+        
+        // 현재 에디터 모드
+        let editorMode = 'plain';
+        
+        // 취소 버튼 이벤트
+        cancelBtn.addEventListener('click', function() {
+            // 폼 제거하고 목록으로 돌아가기
+            resetPostsView();
         });
+        
+        // 에디터 모드 전환 버튼
+        plainTextBtn.addEventListener('click', function() {
+            switchEditorMode('plain');
+        });
+        
+        htmlEditorBtn.addEventListener('click', function() {
+            switchEditorMode('html');
+        });
+        
+        // 내용 변경 시 HTML 미리보기 업데이트
+        postContent.addEventListener('input', function() {
+            if (editorMode === 'html') {
+                updateHtmlPreview();
+            }
+        });
+        
+        // 이미지 미리보기
+        postImage.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    imagePreview.innerHTML = `<img src="${e.target.result}" alt="미리보기" style="max-width: 200px; max-height: 200px;">`;
+                };
+                reader.readAsDataURL(file);
+            } else {
+                imagePreview.innerHTML = '';
+            }
+        });
+        
+        // 폼 제출 이벤트
+        postForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const title = document.getElementById('postTitle').value;
+            const content = document.getElementById('postContent').value;
+            const postIdValue = document.getElementById('postId').value;
+            const imageFile = document.getElementById('postImage').files[0];
+            
+            if (!title || !content) {
+                alert('제목과 내용을 모두 입력해주세요.');
+                return;
+            }
+            
+            // 이미지 처리
+            if (imageFile) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    savePost(title, content, e.target.result, postIdValue, editorMode);
+                };
+                reader.readAsDataURL(imageFile);
+            } else {
+                // 기존 이미지 유지 또는 기본 이미지 사용
+                const posts = JSON.parse(localStorage.getItem('blogPosts')) || [];
+                const existingPost = posts.find(post => post.id === postIdValue);
+                const existingImage = existingPost ? existingPost.image : 'images/default-post-image.jpg';
+                
+                savePost(title, content, existingImage, postIdValue, editorMode);
+            }
+        });
+        
+        // 에디터 모드 전환 함수
+        function switchEditorMode(mode) {
+            editorMode = mode;
+            
+            if (mode === 'plain') {
+                plainTextBtn.classList.add('active');
+                htmlEditorBtn.classList.remove('active');
+                htmlPreview.style.display = 'none';
+            } else {
+                plainTextBtn.classList.remove('active');
+                htmlEditorBtn.classList.add('active');
+                htmlPreview.style.display = 'block';
+                updateHtmlPreview();
+            }
+        }
+        
+        // HTML 미리보기 업데이트
+        function updateHtmlPreview() {
+            try {
+                previewContent.innerHTML = postContent.value || '<p>HTML 미리보기가 여기에 표시됩니다.</p>';
+            } catch (error) {
+                console.error('HTML 미리보기 오류:', error);
+                previewContent.innerHTML = '<p style="color: red;">HTML 오류가 발생했습니다. 코드를 확인해주세요.</p>';
+            }
+        }
     }
     
-    // 로그아웃 기능
-    const adminLogoutLink = document.getElementById('adminLogoutLink');
-    const mobileAdminLogoutLink = document.getElementById('mobileAdminLogoutLink');
-    
-    function handleLogout(e) {
-        e.preventDefault();
-        localStorage.removeItem('currentAdmin');
-        localStorage.removeItem('admin_token');
-        localStorage.removeItem('admin_name');
-        localStorage.removeItem('admin_role');
+    // 게시물 데이터 로드 (수정 시)
+    function loadPostData(postId) {
+        const posts = JSON.parse(localStorage.getItem('blogPosts')) || [];
+        const post = posts.find(p => p.id === postId);
         
-        // 블로그 시스템 호환성을 위한 항목도 제거
-        localStorage.removeItem('adminLoggedIn');
-        
-        alert('로그아웃되었습니다.');
-        window.location.href = 'admin-login.html';
+        if (post) {
+            document.getElementById('postTitle').value = post.title || '';
+            document.getElementById('postContent').value = post.content || '';
+            
+            // 이미지 미리보기 설정
+            if (post.image) {
+                document.getElementById('imagePreview').innerHTML = 
+                    `<img src="${post.image}" alt="미리보기" style="max-width: 200px; max-height: 200px;">`;
+            }
+            
+            // HTML 모드였다면 해당 모드로 전환
+            if (post.isHtml) {
+                document.getElementById('htmlEditorBtn').click();
+            }
+        }
     }
     
-    if (logoutBtn) logoutBtn.addEventListener('click', handleLogout);
-    if (adminLogoutLink) adminLogoutLink.addEventListener('click', handleLogout);
-    if (mobileAdminLogoutLink) mobileAdminLogoutLink.addEventListener('click', handleLogout);
+    // 게시물 저장 함수
+    function savePost(title, content, imageSrc, postId, editorMode) {
+        const posts = JSON.parse(localStorage.getItem('blogPosts')) || [];
+        const currentDate = new Date().toLocaleString('ko-KR');
+        
+        if (postId) {
+            // 게시물 수정
+            const index = posts.findIndex(post => post.id === postId);
+            if (index !== -1) {
+                posts[index] = {
+                    ...posts[index],
+                    title,
+                    content,
+                    date: currentDate,
+                    image: imageSrc,
+                    isHtml: editorMode === 'html'
+                };
+            }
+        } else {
+            // 새 게시물 추가
+            const newPost = {
+                id: Date.now().toString(),
+                title,
+                content,
+                date: currentDate,
+                image: imageSrc,
+                isHtml: editorMode === 'html'
+            };
+            
+            posts.unshift(newPost);
+        }
+        
+        // 로컬 스토리지에 저장
+        localStorage.setItem('blogPosts', JSON.stringify(posts));
+        
+        // 알림 표시
+        showNotification(postId ? '게시물이 성공적으로 수정되었습니다.' : '새 게시물이 등록되었습니다.', 'success');
+        
+        // 게시물 목록으로 돌아가기
+        resetPostsView();
+        
+        // 게시물 목록 다시 로드
+        loadPostsData();
+    }
+    
+    // 게시물 목록 보기로 초기화
+    function resetPostsView() {
+        // 폼 제거
+        const postFormContainer = document.querySelector('.post-form-container');
+        if (postFormContainer) {
+            postFormContainer.remove();
+        }
+        
+        // 테이블과 검색 필터 다시 표시
+        const postsTableContainer = document.querySelector('#posts .table-container');
+        const searchFilter = document.querySelector('#posts .search-filter');
+        
+        if (postsTableContainer) {
+            postsTableContainer.style.display = 'block';
+        }
+        
+        if (searchFilter) {
+            searchFilter.style.display = 'flex';
+        }
+        
+        // URL 매개변수 제거
+        history.pushState({}, '', 'admin-dashboard.html');
+    }
 }); 
