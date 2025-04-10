@@ -418,4 +418,17 @@ document.addEventListener('DOMContentLoaded', function() {
             navMenu.classList.remove('active');
         }
     });
+
+    // 햄버거 메뉴 기능 구현
+    const mobileMenuButton = document.querySelector('.mobile-menu-button');
+    const navigation = document.querySelector('nav');
+    
+    if (mobileMenuButton && navigation) {
+        mobileMenuButton.addEventListener('click', function() {
+            navigation.classList.toggle('active');
+            const isExpanded = navigation.classList.contains('active');
+            this.setAttribute('aria-expanded', isExpanded);
+            this.setAttribute('aria-label', isExpanded ? '메뉴 닫기' : '메뉴 열기');
+        });
+    }
 });
