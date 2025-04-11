@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>자격증 닷컴 - 블로그 상세</title>
+    <link rel="stylesheet" href="css/style.css?v=2.0">
+    <link rel="stylesheet" href="css/blog.css?v=2.0">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo">
+                <a href="index.html">
+                    <img src="./images/logo.svg" alt="자격증 닷컴" class="logo-image">
+                    <span class="logo-text">자격증 닷컴</span>
+                </a>
+            </div>
+            <div class="nav-wrapper">
+                <button class="mobile-menu-button" aria-label="메뉴 열기">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <nav class="nav-menu">
+                    <ul>
+                        <li><a href="admin-dashboard.html" id="adminLoginBtn">관리자 대시보드</a></li>
+                        <li class="admin-only"><a href="#" id="adminLogoutLink">로그아웃</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <section class="blog-header">
+        <div class="container">
+            <h2>학위취득, 자격증 취득 완벽 가이드!!</h2>
+            <p>모든 궁금증을 해결해 드리도록 하겠습니다. </p>
+        </div>
+    </section>
+
+    <section class="blog-container">
+        <div class="container">
+            <!-- 블로그 상세 내용 -->
+            <div id="blog-detail-container" class="blog-detail-container">
+                <div class="loading-spinner">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>게시물을 불러오는 중입니다...</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <p>학위취득, 자격증 취득의 모든 것을 알려드립니다.</p>
+            <div class="footer-links">
+                <a href="#"></a>
+            </div>
+            <p class="copyright">© 학위취득, 자격증닷컴</p>
+        </div>
+    </footer>
+
+    <!-- 삭제 확인 모달 -->
+    <div id="deleteModal" class="modal">
+        <div class="modal-content">
+            <h3>게시물 삭제</h3>
+            <p>이 게시물을 정말 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.</p>
+            <div class="modal-buttons">
+                <button id="confirmDelete" class="btn btn-danger">삭제</button>
+                <button id="cancelDelete" class="btn btn-secondary">취소</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/blog-detail.js?v=2.0"></script>
+</body>
+</html> 

@@ -1,0 +1,28 @@
+{
+  "name": "certifyj",
+  "version": "1.0.0",
+  "description": "Certification management system",
+  "scripts": {
+    "start": "vercel dev",
+    "build": "echo 'No build step required'"
+  },
+  "devDependencies": {
+    "vercel": "^32.0.0"
+  },
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dotolinklab/certi.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dotolinklab/certi/issues"
+  },
+  "homepage": "https://github.com/dotolinklab/certi#readme",
+  "dependencies": {
+    "@vercel/node": "^5.1.14",
+    "formidable": "^3.5.2"
+  }
+}

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>관리자 로그인 - 자격증 닷컴</title>
+    <link rel="stylesheet" href="css/style.css?v=1.4">
+    <link rel="stylesheet" href="css/admin.css?v=1.4">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo">
+                <a href="index.html">
+                    <img src="./images/logo.svg" alt="자격증 닷컴" class="logo-image">
+                    <span class="logo-text">자격증 닷컴</span>
+                </a>
+            </div>
+            <div class="nav-wrapper">
+                <button class="mobile-menu-button" aria-label="메뉴 열기">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <nav class="nav-menu">
+                    <ul>
+                        <li><a href="index.html">메인으로 돌아가기</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <section class="admin-section">
+        <div class="container">
+            <div class="auth-container">
+                <div class="auth-tabs">
+                    <button id="loginTabBtn" class="auth-tab active">로그인</button>
+                    <button id="registerTabBtn" class="auth-tab">회원가입</button>
+                </div>
+                
+                <!-- 로그인 폼 -->
+                <div id="loginForm" class="auth-form active">
+                    <div class="form-header">
+                        <i class="fas fa-lock"></i>
+                        <h2>관리자 로그인</h2>
+                        <p>블로그 관리를 위해 로그인해주세요</p>
+                    </div>
+                    
+                    <form id="adminLoginForm" method="post" action="javascript:void(0);" novalidate>
+                        <div class="form-group">
+                            <label for="adminId"><i class="fas fa-user"></i> 관리자 ID</label>
+                            <input type="text" id="adminId" placeholder="아이디를 입력하세요" autocomplete="username" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="adminPassword"><i class="fas fa-key"></i> 비밀번호</label>
+                            <input type="password" id="adminPassword" placeholder="비밀번호를 입력하세요" autocomplete="current-password" required>
+                        </div>
+                        <div class="form-group remember-me" style="justify-content: flex-start; text-align: left;">
+                            <input type="checkbox" id="rememberMe">
+                            <label for="rememberMe">로그인 상태 유지</label>
+                        </div>
+                        <div id="loginError" class="error-message"></div>
+                        <div class="login-row">
+                            <button type="submit" class="btn btn-primary">로그인 <i class="fas fa-sign-in-alt"></i></button>
+                        </div>
+                    </form>
+                </div>
+                
+                <!-- 회원가입 폼 -->
+                <div id="registerForm" class="auth-form">
+                    <div class="form-header">
+                        <i class="fas fa-user-plus"></i>
+                        <h2>관리자 회원가입</h2>
+                        <p>새로운 관리자 계정을 생성합니다</p>
+                    </div>
+                    
+                    <form id="adminRegisterForm">
+                        <div class="form-group">
+                            <label for="newAdminId"><i class="fas fa-user"></i> 아이디</label>
+                            <input type="text" id="newAdminId" placeholder="사용할 아이디를 입력하세요" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="newAdminPassword"><i class="fas fa-key"></i> 비밀번호</label>
+                            <input type="password" id="newAdminPassword" placeholder="비밀번호를 입력하세요" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="confirmPassword"><i class="fas fa-check"></i> 비밀번호 확인</label>
+                            <input type="password" id="confirmPassword" placeholder="비밀번호를 다시 입력하세요" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="adminName"><i class="fas fa-address-card"></i> 이름</label>
+                            <input type="text" id="adminName" placeholder="이름을 입력하세요" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="adminEmail"><i class="fas fa-envelope"></i> 이메일</label>
+                            <input type="email" id="adminEmail" placeholder="이메일을 입력하세요" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="adminKey"><i class="fas fa-shield-alt"></i> 관리자 등록 키</label>
+                            <input type="password" id="adminKey" placeholder="관리자 등록 키를 입력하세요" required>
+                            <small class="form-hint">* 관리자 등록 키는 기존 관리자에게 문의하세요</small>
+                        </div>
+                        <div id="registerError" class="error-message"></div>
+                        <button type="submit" class="btn btn-primary">회원가입 <i class="fas fa-user-plus"></i></button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <p>지금의 페이지는 와이제이평생교육원의 학위취득과 자격증 취득의 모든 것에 대한 안내페이지입니다.</p>
+            <div class="footer-links">
+                <a href="#"></a>
+            </div>
+            <p class="copyright">© 학위취득,자격증닷컴</p>
+        </div>
+    </footer>
+
+    <!-- 디버깅용 스크립트 -->
+    <script>
+        // 기본 관리자 계정 강제 생성
+        const forceCreateAdmin = function() {
+            const defaultAdmin = {
+                id: 'admin',
+                password: 'admin123',
+                name: '기본 관리자',
+                email: 'admin@example.com', 
+                role: 'admin',
+                createdAt: new Date().toISOString()
+            };
+            
+            const admins = [defaultAdmin];
+            localStorage.setItem('adminUsers', JSON.stringify(admins));
+            console.log('기본 관리자 계정이 강제로 생성되었습니다.');
+            alert('기본 관리자 계정이 생성되었습니다. ID: admin, 비밀번호: admin123');
+        };
+        
+        // 디버깅용 버튼 (개발 환경에서만 사용)
+        if (location.hostname === 'localhost' || location.hostname === '127.0.0.1' || location.hostname.includes('vercel.app')) {
+            const debugDiv = document.createElement('div');
+            debugDiv.style.position = 'fixed';
+            debugDiv.style.bottom = '10px';
+            debugDiv.style.left = '10px';
+            debugDiv.style.zIndex = '9999';
+            debugDiv.innerHTML = '<button onclick="forceCreateAdmin()" style="padding:5px;background:#f44336;color:white;border:none;border-radius:4px;">관리자 생성</button>';
+            document.body.appendChild(debugDiv);
+        }
+    </script>
+
+    <script src="js/admin.js?v=1.5"></script>
+</body>
+</html> 
