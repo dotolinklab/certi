@@ -1,5 +1,5 @@
 # GitHub Pages에 정적 콘텐츠 배포를 위한 워크플로우
-name: Deploy static content to Pages
+name: Deploy to GitHub Pages
 
 on:
   # main 브랜치에 푸시할 때마다 실행
@@ -21,31 +21,17 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  # 빌드 작업
-  build:
+  deploy:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
-      
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v2
-        with:
-          path: ${{ github.workspace }}
 
-  # 배포 작업
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-      
-    steps:
       - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4 
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./
+          force_orphan: true 
